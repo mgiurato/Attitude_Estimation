@@ -1,0 +1,46 @@
+Compiler version: 4.8 (R2008a) 
+mcc -W 'dotnet:CalibrationAlgorithmsMATLAB,CalibrationAlgorithmsMATLABclass,0.0,private' -d 'C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src' -T 'link:lib' -v -C 'class{CalibrationAlgorithmsMATLABclass:C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\calibrateAccelMag.m,C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\calibrateGyro.m,C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\objFunAccelMag.m,C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\objFunGyro.m}'  
+Processing C:\Program Files (x86)\MATLAB\R2008a\toolbox\matlab\mcc.enc 
+Processing C:\Program Files (x86)\MATLAB\R2008a\toolbox\optim\mcc.enc 
+Processing C:\Program Files (x86)\MATLAB\R2008a\toolbox\shared\optimlib\mcc.enc 
+Processing include files... 
+2 item(s) added. 
+Processing directories installed with MCR... 
+The file C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\mccExcludedFiles.log contains a list of functions excluded from the CTF archive. 
+1 item(s) added. 
+Generating MATLAB path for the compiled application... 
+Created 40 path items. 
+Begin validation of MEX files: Sat Jan 08 15:26:46 2011 
+Validating 'C:\Program Files (x86)\MATLAB\R2008a\toolbox\compiler\deploy\deploywhich.mexw32'. 
+No conflicting M-file found. 
+Validating 'C:\Program Files (x86)\MATLAB\R2008a\toolbox\compiler\deploy\readline.mexw32'. 
+No conflicting M-file found. 
+End validation of MEX files: Sat Jan 08 15:26:46 2011 
+Deleting 2 temporary MEX authorization files. 
+Removing: 'C:\Users\SEBMAD~1\AppData\Local\Temp\mathworks_tmp_3192_22767_3192.auth'. 
+Removing: 'C:\Users\SEBMAD~1\AppData\Local\Temp\mathworks_tmp_3192_10078_3192.auth'. 
+Parsing file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\calibrateAccelMag.m" 
+	(Referenced from: "Compiler Command Line"). 
+Parsing file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\calibrateGyro.m" 
+	(Referenced from: "Compiler Command Line"). 
+Parsing file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\objFunAccelMag.m" 
+	(Referenced from: "Compiler Command Line"). 
+Parsing file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\objFunGyro.m" 
+	(Referenced from: "Compiler Command Line"). 
+Parsing file "C:\Program Files (x86)\MATLAB\R2008a\toolbox\compiler\deploy\deployprint.m" 
+	(Referenced from: "Compiler Command Line"). 
+Parsing file "C:\Program Files (x86)\MATLAB\R2008a\toolbox\compiler\deploy\printdlg.m" 
+	(Referenced from: "Compiler Command Line"). 
+Generating file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLABclass.cs". 
+Generating file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\readme.txt". 
+Generating file "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLAB_mcc_component_data.cs". 
+Executing command: C:\Windows\Microsoft.NET\Framework\v2.0.50727\csc.exe /nologo /optimize /doc:"C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLAB.xml" /t:library /r:"C:\Program Files (x86)\MATLAB\R2008a\toolbox\dotnetbuilder\bin\win32\v2.0\MWArray.dll" /linkres:"C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLAB.ctf" /out:"C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLAB.dll" "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLABclass.cs" "C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms MATLAB\CalibrationAlgorithmsMATLAB\src\CalibrationAlgorithmsMATLAB_mcc_component_data.cs" 
+Warning: Duplicate directory name: C:\Users\Seb Madgwick\Desktop\Automated 
+Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms 
+MATLAB. 
+Warning: Duplicate directory name: C:\Users\Seb Madgwick\Desktop\Automated 
+Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms 
+MATLAB. 
+Warning: Duplicate directory name: C:\Users\Seb Madgwick\Desktop\Automated 
+Calibration Feasbility Study\Source Code and Resources\Calibration Algorithms 
+MATLAB. 

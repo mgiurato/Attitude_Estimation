@@ -1,0 +1,895 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CalibrationAlgorithmsMATLAB</name>
+    </assembly>
+    <members>
+        <member name="T:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass">
+            <summary>
+            The CalibrationAlgorithmsMATLABclass class provides a CLS compliant interface to
+            the M-functions contained in the files:
+            <newpara></newpara>
+            C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code
+            and Resources\Calibration Algorithms MATLAB\calibrateAccelMag.m
+            <newpara></newpara>
+            C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code
+            and Resources\Calibration Algorithms MATLAB\calibrateGyro.m
+            <newpara></newpara>
+            C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code
+            and Resources\Calibration Algorithms MATLAB\objFunAccelMag.m
+            <newpara></newpara>
+            C:\Users\Seb Madgwick\Desktop\Automated Calibration Feasbility Study\Source Code
+            and Resources\Calibration Algorithms MATLAB\objFunGyro.m
+            <newpara></newpara>
+            deployprint.m
+            <newpara></newpara>
+            printdlg.m
+            </summary>
+            <remarks>
+            @Version 0.0
+            </remarks>
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.#cctor">
+            <summary internal= "true">
+            The static constructor instantiates and initializes the MATLAB Component
+            Runtime instance.
+            </summary>
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.#ctor">
+            <summary>
+            Constructs a new instance of the CalibrationAlgorithmsMATLABclass class.
+            </summary>
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.Finalize">
+            <summary internal= "true">
+            Class destructor called by the CLR garbage collector.
+            </summary>
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.Dispose">
+            <summary>
+            Frees the native resources associated with this object
+            </summary>
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.Dispose(System.Boolean)">
+            <summary internal= "true">
+            Internal dispose function
+            </summary>
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag">
+             <summary>
+             Provides a void output, 0-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 1-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 2-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 3-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 4-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <param name="feildMagnitude">Input argument #4</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 5-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <param name="feildMagnitude">Input argument #4</param>
+             <param name="bias">Input argument #5</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 6-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <param name="feildMagnitude">Input argument #4</param>
+             <param name="bias">Input argument #5</param>
+             <param name="gain">Input argument #6</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32)">
+             <summary>
+             Provides the standard 0-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 1-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 2-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 3-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 4-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <param name="feildMagnitude">Input argument #4</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 5-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <param name="feildMagnitude">Input argument #4</param>
+             <param name="bias">Input argument #5</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 6-input interface to the calibrateAccelMag M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="accelElseMag">Input argument #3</param>
+             <param name="feildMagnitude">Input argument #4</param>
+             <param name="bias">Input argument #5</param>
+             <param name="gain">Input argument #6</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro">
+             <summary>
+             Provides a void output, 0-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 1-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 2-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 3-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 4-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 5-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <param name="samplePeriod">Input argument #5</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a void output, 6-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <param name="samplePeriod">Input argument #5</param>
+             <param name="gain">Input argument #6</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32)">
+             <summary>
+             Provides the standard 0-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 1-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 2-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 3-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 4-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 5-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <param name="samplePeriod">Input argument #5</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.calibrateGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 6-input interface to the calibrateGyro M-function.
+             </summary>
+             <remarks>
+             M-Documentation:
+             --------------------------------------------------------------------------  
+             Import data
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="inFile">Input argument #1</param>
+             <param name="outFile">Input argument #2</param>
+             <param name="axis">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <param name="samplePeriod">Input argument #5</param>
+             <param name="gain">Input argument #6</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag">
+             <summary>
+             Provides a single output, 0-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 1-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 2-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 3-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 4-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <param name="magnitude">Input argument #4</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(System.Int32)">
+             <summary>
+             Provides the standard 0-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 1-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 2-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 3-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 4-input interface to the objFunAccelMag M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <param name="magnitude">Input argument #4</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunAccelMag(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray[]@,MathWorks.MATLAB.NET.Arrays.MWArray[])">
+             <summary>
+             Provides an interface for the objFunAccelMag function in which the input and
+             output
+             arguments are specified as an array of MWArrays.
+             </summary>
+             <remarks>
+             This method will allocate and return by reference the output argument
+             array.<newpara></newpara>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return</param>
+             <param name= "argsOut">Array of MWArray output arguments</param>
+             <param name= "argsIn">Array of MWArray input arguments</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro">
+             <summary>
+             Provides a single output, 0-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 1-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 2-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 3-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 4-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides a single output, 5-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <param name="samplePeriod">Input argument #5</param>
+             <returns>An MWArray containing the first output argument.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32)">
+             <summary>
+             Provides the standard 0-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 1-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 2-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 3-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 4-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray,MathWorks.MATLAB.NET.Arrays.MWArray)">
+             <summary>
+             Provides the standard 5-input interface to the objFunGyro M-function.
+             </summary>
+             <remarks>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return.</param>
+             <param name="optVal">Input argument #1</param>
+             <param name="optValScaler">Input argument #2</param>
+             <param name="data">Input argument #3</param>
+             <param name="target">Input argument #4</param>
+             <param name="samplePeriod">Input argument #5</param>
+             <returns>An Array of length "numArgsOut" containing the output
+             arguments.</returns>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.objFunGyro(System.Int32,MathWorks.MATLAB.NET.Arrays.MWArray[]@,MathWorks.MATLAB.NET.Arrays.MWArray[])">
+             <summary>
+             Provides an interface for the objFunGyro function in which the input and output
+             arguments are specified as an array of MWArrays.
+             </summary>
+             <remarks>
+             This method will allocate and return by reference the output argument
+             array.<newpara></newpara>
+             </remarks>
+             <param name="numArgsOut">The number of output arguments to return</param>
+             <param name= "argsOut">Array of MWArray output arguments</param>
+             <param name= "argsIn">Array of MWArray input arguments</param>
+            
+        </member>
+        <member name="M:CalibrationAlgorithmsMATLAB.CalibrationAlgorithmsMATLABclass.WaitForFiguresToDie">
+             <summary>
+             This method will cause a MATLAB figure window to behave as a modal dialog box.
+             The method will not return until all the figure windows associated with this
+             component have been closed.
+             </summary>
+             <remarks>
+             An application should only call this method when required to keep the
+             MATLAB figure window from disappearing.  Other techniques, such as calling
+             Console.ReadLine() from the application should be considered where
+             possible.</remarks>
+            
+        </member>
+        <member name="T:CalibrationAlgorithmsMATLAB.MCRComponentState">
+            <summary>
+            The MCR Component State
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_name_data">
+            <summary>
+            The .NET Builder component name
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_root_data">
+            <summary>
+            The component root data
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_public_data">
+            <summary>
+            The public encryption key for the .NET Builder component
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_session_data">
+            <summary>
+            The session encryption key for the .NET Builder component
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_matlabpath_data">
+            <summary>
+            The MATLAB path for the .NET Builder component
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_matlabpath_data_count">
+            <summary>
+            The MATLAB path count
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_classpath_data">
+            <summary>
+            The class path for the .NET Builder component
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_classpath_data_count">
+            <summary>
+            The class path count
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_libpath_data">
+            <summary>
+            The lib path for the .NET Builder component
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_libpath_data_count">
+            <summary>
+            The lib path count
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_mcr_application_options">
+            <summary>
+            The MCR application options
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_mcr_application_option_count">
+            <summary>
+            The MCR application options count
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_mcr_runtime_options">
+            <summary>
+            The MCR runtime options
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_mcr_runtime_option_count">
+            <summary>
+            The MCR runtime options count
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_mcr_pref_dir">
+            <summary>
+            The component preferences directory
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_set_warning_state">
+            <summary>
+            Runtime warning states
+            </summary>
+        </member>
+        <member name="F:CalibrationAlgorithmsMATLAB.MCRComponentState.MCC_CalibrationAlgorithmsMATLAB_set_warning_state_count">
+            <summary>
+            Runtime warning state count
+            </summary>
+        </member>
+    </members>
+</doc>
