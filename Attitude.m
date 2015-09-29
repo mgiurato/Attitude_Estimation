@@ -16,7 +16,7 @@ gain_g = [0.00032202 0.00033516 0.00031422];
 
 %% Import logged data
 %Import IMU data
-RAW = dlmread('log_IMU1.txt');
+RAW = dlmread('log_IMU3.txt');
 acc = RAW(:,1:3);
 gyr = RAW(:,4:6);
 mag = RAW(:,7:9);
@@ -33,7 +33,7 @@ Gyroscope(:,2) = -(gain_g(1) * (gyr(:,1) - gyr(1,1)));
 Gyroscope(:,3) = +(gain_g(3) * (gyr(:,3) - gyr(1,3)));
 
 %Import Optitrack data
-filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti1.txt';
+filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti3.txt';
 delimiter = ',';
 startRow = 2;
 formatSpec = '%f%f%f%s%f%f%f%f%f%f%f%[^\n\r]';
@@ -43,10 +43,6 @@ fclose(fileID);
 seq = dataArray{:, 2};
 stamp = dataArray{:, 3};
 OPTItime = (stamp - stamp(1))*10e-10;
-frame_id = dataArray{:, 4};
-positionx = dataArray{:, 5};
-positiony = dataArray{:, 6};
-positionz = dataArray{:, 7};
 orientationx = dataArray{:, 8};
 orientationy = dataArray{:, 9};
 orientationz = dataArray{:, 10};
@@ -56,35 +52,31 @@ OPTIquaternion_c = [orientationw orientationx orientationy orientationz];
 clearvars RAW filename delimiter startRow formatSpec fileID dataArray ans stamp;
 
 %% Resizing vectors
-IMUsample = 1/50;
+IMUsample = 1/100;
 OPTIsample = mean(diff(OPTItime));
 
-IMUstart = 450;
-IMUend = 1266;
-OPTIstart = 615;
-OPTIend = 2246;
+dddel = 1650;
+IMUstart = 640;
+IMUend = IMUstart + dddel;
+OPTIstart = 430;
+OPTIend = OPTIstart + dddel;
 
 Accelerometer = Accelerometer(IMUstart:IMUend, :);
 Gyroscope = Gyroscope(IMUstart:IMUend, :);
 Magnetometer = Magnetometer(IMUstart:IMUend, :);
-IMUtime = (0:IMUsample:(length(Accelerometer)-2)*IMUsample)';
+IMUtime = (0:IMUsample:(length(Accelerometer)-1)*IMUsample)';
 
-OPTItime = downsample(OPTItime(OPTIstart:OPTIend),floor(IMUsample/OPTIsample)) - OPTItime(OPTIstart);
-OPTIq_1 = mean(reshape(OPTIquaternion_c(OPTIstart:OPTIend,1),floor(IMUsample/OPTIsample),[]))';
-OPTIq_2 = mean(reshape(OPTIquaternion_c(OPTIstart:OPTIend,2),floor(IMUsample/OPTIsample),[]))';
-OPTIq_3 = mean(reshape(OPTIquaternion_c(OPTIstart:OPTIend,3),floor(IMUsample/OPTIsample),[]))';
-OPTIq_4 = mean(reshape(OPTIquaternion_c(OPTIstart:OPTIend,4),floor(IMUsample/OPTIsample),[]))';
-OPTIquaternion = [OPTIq_1 OPTIq_2 OPTIq_3 OPTIq_4];
+OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
 
 %% Tuning iterations
 
-for i = 0.1:60
+for i = 0:60
     % Process sensor data through Madgwick algorithm
     beta(i+1) = i/100;
     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1));IMUquaternion = zeros(length(IMUtime), 4);
     for t = 1:length(IMUtime)
-        AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+        %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
         IMUquaternion(t, :) = AHRS.Quaternion;
     end
     % Let's find the ERROR
@@ -103,11 +95,11 @@ legend('RMS');
 hold off;
 
 %% Plot 
-bet = 0.1;
+bet = 0.15;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet);IMUquaternion = zeros(length(IMUtime), 4);
 for t = 1:length(IMUtime)
-    AHRS.UpdateIMU(Gyroscope(t,:) * (pi/180), Accelerometer(t,:));	% gyroscope units must be radians
-    %AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+    AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
 end
 
@@ -131,17 +123,17 @@ hold off;
 
 figure('Name', 'OPTITRACK - Quaternions');
 hold on;
-plot(OPTItime, OPTIquaternion(:,1));
-plot(OPTItime, OPTIquaternion(:,2));
-plot(OPTItime, OPTIquaternion(:,3));
-plot(OPTItime, OPTIquaternion(:,4));
+plot(IMUtime, OPTIquaternion(:,1));
+plot(IMUtime, OPTIquaternion(:,2));
+plot(IMUtime, OPTIquaternion(:,3));
+plot(IMUtime, OPTIquaternion(:,4));
 title('OPTI - Quaternions');
 xlabel('Time (s)');
 ylabel('Quaternion');
 legend('w','x','y','z');
 hold off;
 
-IMUeuler = quatern2euler(quaternConj(IMUquaternion)) * (180/pi);	% use conjugate for sensor frame relative to Earth and convert to degrees.
+IMUeuler = quatern2euler(IMUquaternion) * (180/pi);	% use conjugate for sensor frame relative to Earth and convert to degrees.
 OPTIeuler = quatern2euler(quaternConj(OPTIquaternion)) * (180/pi);
 
 figure('Name', 'IMU - Euler Angles');
@@ -157,9 +149,9 @@ hold off;
 
 figure('Name', 'OPTITRACK - Euler Angles');
 hold on;
-plot(OPTItime, OPTIeuler(:,1), 'r');
-plot(OPTItime, OPTIeuler(:,2), 'g');
-plot(OPTItime, OPTIeuler(:,3), 'b');
+plot(IMUtime, OPTIeuler(:,1), 'r');
+plot(IMUtime, OPTIeuler(:,2), 'g');
+plot(IMUtime, OPTIeuler(:,3), 'b');
 title('OPTI - Euler angles');
 xlabel('Time (s)');
 ylabel('Angle (deg)');
