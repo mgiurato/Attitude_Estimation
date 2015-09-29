@@ -21,7 +21,7 @@ acc = RAW(:,1:3);
 gyr = RAW(:,4:6);
 mag = RAW(:,7:9);
 
-dddel = 2370;
+dddel = 1670;
 IMUstart = 640;
 IMUend = IMUstart + dddel;
 
@@ -72,11 +72,11 @@ OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
 %% Tuning iterations
 for i = 0:100
     % Process sensor data through Madgwick algorithm
-    beta(i+1) = i/1000;
+    beta(i+1) = i/200;
     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1));IMUquaternion = zeros(length(time), 4);
     for t = 1:length(time)
-        AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+        %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
         IMUquaternion(t, :) = AHRS.Quaternion;
     end
     % Let's find the ERROR
@@ -88,7 +88,7 @@ end
 figure('Name', 'Filter RMS');
 hold on;
 plot(beta, FiltRMS);
-title('Filter RMS with reference to \beta');
+title('RMS of the error with reference to \beta');
 xlabel('\beta');
 ylabel('Quaternion Average RMS');
 legend('RMS');
@@ -96,12 +96,12 @@ hold off;
 
 %% Plot 
 [M, I] = min(FiltRMS);
-bet = (I-1)/1000;
+bet = (I-1)/200;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet);
 IMUquaternion = zeros(length(time), 4);
 for t = 1:length(time)
-    AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-    %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+    AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
 end
 
@@ -134,30 +134,30 @@ xlabel('Time (s)');
 ylabel('Quaternion');
 legend('w','x','y','z');
 hold off;
-% 
-% IMUeuler = quatern2euler(IMUquaternion) * (180/pi);	% use conjugate for sensor frame relative to Earth and convert to degrees.
-% OPTIeuler = quatern2euler(quaternConj(OPTIquaternion)) * (180/pi);
-% 
-% figure('Name', 'IMU - Euler Angles');
-% hold on;
-% plot(time, IMUeuler(:,1), 'r');
-% plot(time, IMUeuler(:,2), 'g');
-% plot(time, IMUeuler(:,3), 'b');
-% title('IMU - Euler angles');
-% xlabel('Time (s)');
-% ylabel('Angle (deg)');
-% legend('\phi', '\theta', '\psi');
-% hold off;
-% 
-% figure('Name', 'OPTITRACK - Euler Angles');
-% hold on;
-% plot(time, OPTIeuler(:,1), 'r');
-% plot(time, OPTIeuler(:,2), 'g');
-% plot(time, OPTIeuler(:,3), 'b');
-% title('OPTI - Euler angles');
-% xlabel('Time (s)');
-% ylabel('Angle (deg)');
-% legend('\phi', '\theta', '\psi');
-% hold off;
+
+IMUeuler = quatern2euler(quaternConj(IMUquaternion)) * (180/pi);	% use conjugate for sensor frame relative to Earth and convert to degrees.
+OPTIeuler = quatern2euler(quaternConj(OPTIquaternion)) * (180/pi);
+
+figure('Name', 'IMU - Euler Angles');
+hold on;
+plot(time, IMUeuler(:,1), 'r');
+plot(time, IMUeuler(:,2), 'g');
+plot(time, IMUeuler(:,3), 'b');
+title('IMU - Euler angles');
+xlabel('Time (s)');
+ylabel('Angle (deg)');
+legend('\phi', '\theta', '\psi');
+hold off;
+
+figure('Name', 'OPTITRACK - Euler Angles');
+hold on;
+plot(time, OPTIeuler(:,1), 'r');
+plot(time, OPTIeuler(:,2), 'g');
+plot(time, OPTIeuler(:,3), 'b');
+title('OPTI - Euler angles');
+xlabel('Time (s)');
+ylabel('Angle (deg)');
+legend('\phi', '\theta', '\psi');
+hold off;
 
 %% End of code
