@@ -21,6 +21,14 @@ RAW = dlmread('log_IMU.txt');
 IMUstart = 500;
 dddel = 3900;
 OPTIstart = 812;
+%test1
+% IMUstart = 470;
+% dddel = 4500;
+% OPTIstart = 682;
+%test1-ident
+% IMUstart = 470;
+% dddel = 2000;
+% OPTIstart = 682;
 
 IMUend = IMUstart + dddel;
 OPTIend = OPTIstart + dddel;
@@ -76,11 +84,10 @@ OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
 %% Tuning iterations
 for i = 0:100
     % Process sensor data through Madgwick algorithm
-    beta(i+1) = i/1000;
-    AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1));IMUquaternion = zeros(length(time), 4);
+    beta(i+1) = i/50000;
+    AHRS = PelaAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1));IMUquaternion = zeros(length(time), 4);
     for t = 1:length(time)
-        %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+        AHRS.Update(Gyroscope(t,:), Magnetometer(t,:));	% gyroscope units must be radians
         IMUquaternion(t, :) = AHRS.Quaternion;
     end
     % Let's find the ERROR
@@ -100,72 +107,21 @@ hold off;
 
 %% Plot Optimal tuning
 [M, I] = min(FiltRMS);
-bet = (I-1)/1000;
-% bet = 0;
-AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet);
+bet = (I-1)/50000;
+
+% bet = 0.0022;
+
+AHRS = PelaAHRS('SamplePeriod', IMUsample, 'Beta', bet);
 IMUquaternion = zeros(length(time), 4);
 for t = 1:length(time)
-    %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-    AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    AHRS.Update(Gyroscope(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
 end
 
 IMUeuler = quatern2euler(quaternConj(IMUquaternion)) * (180/pi);	% use conjugate for sensor frame relative to Earth and convert to degrees.
 OPTIeuler = quatern2euler(quaternConj(OPTIquaternion)) * (180/pi);
 
-FinalError = (OPTIeuler - IMUeuler)./OPTIeuler);
-
-%% Plot algorithm output as Euler angles
-% The first and third Euler angles in the sequence (phi and psi) become
-% unreliable when the middle angles of the sequence (theta) approaches �90
-% degrees. This problem commonly referred to as Gimbal Lock.
-% See: http://en.wikipedia.org/wiki/Gimbal_lock
-
-% figure('Name', 'IMU - Quaternions');
-% hold on;
-% plot(time, IMUquaternion(:,1));
-% plot(time, IMUquaternion(:,2));
-% plot(time, IMUquaternion(:,3));
-% plot(time, IMUquaternion(:,4));
-% title('IMU - Quaternions');
-% xlabel('Time (s)');
-% ylabel('Quaternion');
-% legend('q_0','q_1','q_2','q_3');
-% hold off;
-% 
-% figure('Name', 'OPTITRACK - Quaternions');
-% hold on;
-% plot(time, OPTIquaternion(:,1));
-% plot(time, OPTIquaternion(:,2));
-% plot(time, OPTIquaternion(:,3));
-% plot(time, OPTIquaternion(:,4));
-% title('OPTI - Quaternions');
-% xlabel('Time (s)');
-% ylabel('Quaternion');
-% legend('q_0','q_1','q_2','q_3');
-% hold off;
-% 
-% figure('Name', 'IMU - Euler Angles');
-% hold on;
-% plot(time, IMUeuler(:,1), 'r');
-% plot(time, IMUeuler(:,2), 'g');
-% plot(time, IMUeuler(:,3), 'b');
-% title('IMU - Euler angles');
-% xlabel('Time (s)');
-% ylabel('Angle (deg)');
-% legend('\phi', '\theta', '\psi');
-% hold off;
-% 
-% figure('Name', 'OPTITRACK - Euler Angles');
-% hold on;
-% plot(time, OPTIeuler(:,1), 'r');
-% plot(time, OPTIeuler(:,2), 'g');
-% plot(time, OPTIeuler(:,3), 'b');
-% title('OPTI - Euler angles');
-% xlabel('Time (s)');
-% ylabel('Angle (deg)');
-% legend('\phi', '\theta', '\psi');
-% hold off;
+FinalError = (OPTIeuler - IMUeuler);
 
 %% Plot 
 figure('Name', 'Quaternions');
@@ -179,7 +135,7 @@ plot(time, OPTIquaternion(:,2),'r-.');
 plot(time, OPTIquaternion(:,3),'g-.');
 plot(time, OPTIquaternion(:,4),'b-.');
 title('Quaternions');
-xlabel('Time (s)');
+xlabel('Time [s]');
 ylabel('Quaternion');
 legend('q_{0,IMU}','q_{1,IMU}','q_{2,IMU}','q_{3,IMU}','q_{0,opti}','q_{1,opti}','q_{2,opti}','q_{3,opti}');
 hold off;
@@ -193,9 +149,20 @@ plot(time, OPTIeuler(:,1), 'r-.');
 plot(time, OPTIeuler(:,2), 'g-.');
 plot(time, OPTIeuler(:,3), 'b-.');
 title('Euler angles');
-xlabel('Time (s)');
-ylabel('Angle (deg)');
+xlabel('Time [s]');
+ylabel('Angle [deg]');
 legend('\phi_{IMU}', '\theta_{IMU}', '\psi_{IMU}', '\phi_{Opti}', '\theta_{Opti}', '\psi_{Opti}');
+hold off;
+
+figure('Name', 'Relative Percentual Error');
+hold on;
+plot(time, FinalError(:,1), 'r');
+plot(time, FinalError(:,2), 'g');
+plot(time, FinalError(:,3), 'b');
+title('Euler angles - Error');
+xlabel('Time [s]');
+ylabel('Angle [deg]');
+legend('\phi_{error}', '\theta_{error}', '\psi_{error}');
 hold off;
 
 %% End of code

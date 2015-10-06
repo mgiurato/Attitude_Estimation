@@ -12,6 +12,8 @@ classdef MadgwickAHRS < handle
         SamplePeriod = 0.01;
         Quaternion = [1 0 0 0];     % output quaternion describing the Earth relative to the sensor
         Beta = 0.12;               	% algorithm gain
+        GyrBias = zeros(1,3);
+        Zeta = 0;
     end
 
     %% Public methods
@@ -21,6 +23,8 @@ classdef MadgwickAHRS < handle
                 if  strcmp(varargin{i}, 'SamplePeriod'), obj.SamplePeriod = varargin{i+1};
                 elseif  strcmp(varargin{i}, 'Quaternion'), obj.Quaternion = varargin{i+1};
                 elseif  strcmp(varargin{i}, 'Beta'), obj.Beta = varargin{i+1};
+                elseif  strcmp(varargin{i}, 'GyroBias'), obj.GyrBias = varargin{i+1};
+                elseif  strcmp(varargin{i}, 'Zeta'), obj.Zeta = varargin{i+1};
                 else error('Invalid argument');
                 end
             end;
@@ -55,6 +59,17 @@ classdef MadgwickAHRS < handle
                 2*b(2)*q(3),                2*b(2)*q(4)-4*b(4)*q(2),	2*b(2)*q(1)-4*b(4)*q(3),        2*b(2)*q(2)];
             step = (J'*F);
             step = step / norm(step);	% normalise step magnitude
+            
+            % Compute angular estimated direction of the gyroscope error
+            g_err_x = 2*q(1) * step(2) - 2*q(2) * step(1) - 2*q(3) * step(4) + 2*q(4) * step(3);
+            g_err_y = 2*q(1) * step(3) + 2*q(2) * step(4) - 2*q(3) * step(1) - 2*q(4) * step(2);
+            g_err_z = 2*q(1) * step(4) - 2*q(2) * step(3) + 2*q(3) * step(2) - 2*q(4) * step(1);
+
+            % Compute and remove the gyroscope baises
+            obj.GyrBias(1) = obj.GyrBias(1) + g_err_x *  obj.Zeta * obj.SamplePeriod;
+            obj.GyrBias(2) = obj.GyrBias(2) + g_err_y *  obj.Zeta * obj.SamplePeriod;
+            obj.GyrBias(3) = obj.GyrBias(3) + g_err_z *  obj.Zeta * obj.SamplePeriod;
+            Gyroscope = Gyroscope - obj.GyrBias;
 
             % Compute rate of change of quaternion
             qDot = 0.5 * quaternProd(q, [0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]) - obj.Beta * step';

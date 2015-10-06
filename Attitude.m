@@ -16,15 +16,19 @@ bias_g = [-0.13963 -0.048177 0.053517];
 gain_g = [0.00032508 0.0003161 0.00032548];
 
 %Import
-RAW = dlmread('log_IMU1.txt');
+RAW = dlmread('log_IMU.txt');
 %test0
-% IMUstart = 500;
-% dddel = 3900;
-% OPTIstart = 812;
+IMUstart = 500;
+dddel = 3900;
+OPTIstart = 812;
 %test1
-IMUstart = 470;
-dddel = 2000;
-OPTIstart = 682;
+% IMUstart = 470;
+% dddel = 4500;
+% OPTIstart = 682;
+%test1-ident
+% IMUstart = 470;
+% dddel = 2000;
+% OPTIstart = 682;
 
 IMUend = IMUstart + dddel;
 OPTIend = OPTIstart + dddel;
@@ -49,7 +53,7 @@ Gyroscope_c(:,2) = gain_g(2) * (gyr(:,2) - mean(gyr(1:IMUstart-1,2)));
 Gyroscope_c(:,3) = gain_g(3) * (gyr(:,3) - mean(gyr(1:IMUstart-1,3)));
 
 %Import Optitrack data
-filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti1.txt';
+filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti.txt';
 delimiter = ',';
 startRow = 2;
 formatSpec = '%f%f%f%s%f%f%f%f%f%f%f%[^\n\r]';
@@ -81,7 +85,9 @@ OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
 for i = 0:100
     % Process sensor data through Madgwick algorithm
     beta(i+1) = i/5000;
-    AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1));IMUquaternion = zeros(length(time), 4);
+    zeta = 0;
+    AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1),  'Zeta', zeta);
+    IMUquaternion = zeros(length(time), 4);
     for t = 1:length(time)
         %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
         AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
@@ -105,71 +111,22 @@ hold off;
 %% Plot Optimal tuning
 [M, I] = min(FiltRMS);
 bet = (I-1)/5000;
-% bet = 0;
-AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet);
+zeta = 0;
+
+AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zeta);
 IMUquaternion = zeros(length(time), 4);
+GYRObias = zeros(length(time), 3);
 for t = 1:length(time)
     %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
     AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
+    GYRObias(t,:) = AHRS.GyrBias;
 end
 
 IMUeuler = quatern2euler(quaternConj(IMUquaternion)) * (180/pi);	% use conjugate for sensor frame relative to Earth and convert to degrees.
 OPTIeuler = quatern2euler(quaternConj(OPTIquaternion)) * (180/pi);
 
 FinalError = (OPTIeuler - IMUeuler);
-
-%% Plot algorithm output as Euler angles
-% The first and third Euler angles in the sequence (phi and psi) become
-% unreliable when the middle angles of the sequence (theta) approaches �90
-% degrees. This problem commonly referred to as Gimbal Lock.
-% See: http://en.wikipedia.org/wiki/Gimbal_lock
-
-% figure('Name', 'IMU - Quaternions');
-% hold on;
-% plot(time, IMUquaternion(:,1));
-% plot(time, IMUquaternion(:,2));
-% plot(time, IMUquaternion(:,3));
-% plot(time, IMUquaternion(:,4));
-% title('IMU - Quaternions');
-% xlabel('Time (s)');
-% ylabel('Quaternion');
-% legend('q_0','q_1','q_2','q_3');
-% hold off;
-% 
-% figure('Name', 'OPTITRACK - Quaternions');
-% hold on;
-% plot(time, OPTIquaternion(:,1));
-% plot(time, OPTIquaternion(:,2));
-% plot(time, OPTIquaternion(:,3));
-% plot(time, OPTIquaternion(:,4));
-% title('OPTI - Quaternions');
-% xlabel('Time (s)');
-% ylabel('Quaternion');
-% legend('q_0','q_1','q_2','q_3');
-% hold off;
-% 
-% figure('Name', 'IMU - Euler Angles');
-% hold on;
-% plot(time, IMUeuler(:,1), 'r');
-% plot(time, IMUeuler(:,2), 'g');
-% plot(time, IMUeuler(:,3), 'b');
-% title('IMU - Euler angles');
-% xlabel('Time (s)');
-% ylabel('Angle (deg)');
-% legend('\phi', '\theta', '\psi');
-% hold off;
-% 
-% figure('Name', 'OPTITRACK - Euler Angles');
-% hold on;
-% plot(time, OPTIeuler(:,1), 'r');
-% plot(time, OPTIeuler(:,2), 'g');
-% plot(time, OPTIeuler(:,3), 'b');
-% title('OPTI - Euler angles');
-% xlabel('Time (s)');
-% ylabel('Angle (deg)');
-% legend('\phi', '\theta', '\psi');
-% hold off;
 
 %% Plot 
 figure('Name', 'Quaternions');
