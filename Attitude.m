@@ -16,11 +16,11 @@ bias_g = [-0.13963 -0.048177 0.053517];
 gain_g = [0.00032508 0.0003161 0.00032548];
 
 %Import
-RAW = dlmread('log_IMU.txt');
+RAW = dlmread('log_imuraw3.txt');
 %test0
-IMUstart = 500;
-dddel = 3900;
-OPTIstart = 812;
+% IMUstart = 500;
+% dddel = 3900;
+% OPTIstart = 812;
 %test1
 % IMUstart = 470;
 % dddel = 4500;
@@ -29,6 +29,10 @@ OPTIstart = 812;
 % IMUstart = 470;
 % dddel = 2000;
 % OPTIstart = 682;
+%test3
+IMUstart = 2450;
+dddel = 5240;
+OPTIstart = 2061;
 
 IMUend = IMUstart + dddel;
 OPTIend = OPTIstart + dddel;
@@ -53,7 +57,7 @@ Gyroscope_c(:,2) = gain_g(2) * (gyr(:,2) - mean(gyr(1:IMUstart-1,2)));
 Gyroscope_c(:,3) = gain_g(3) * (gyr(:,3) - mean(gyr(1:IMUstart-1,3)));
 
 %Import Optitrack data
-filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti.txt';
+filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti3.txt';
 delimiter = ',';
 startRow = 2;
 formatSpec = '%f%f%f%s%f%f%f%f%f%f%f%[^\n\r]';
@@ -85,20 +89,27 @@ OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
 for i = 0:100
     % Process sensor data through Madgwick algorithm
     beta(i+1) = i/5000;
-    zeta = 0;
-    AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1),  'Zeta', zeta);
-    IMUquaternion = zeros(length(time), 4);
-    for t = 1:length(time)
-        %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
-        IMUquaternion(t, :) = AHRS.Quaternion;
+    for j = 0:100
+        zeta(i+1) = i/500;
+        AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1),  'Zeta', zeta(i+1));
+        IMUquaternion = zeros(length(time), 4);
+        for t = 1:length(time)
+            %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+            AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+            IMUquaternion(t, :) = AHRS.Quaternion;
+        end
+        % Let's find the ERROR
+        error = OPTIquaternion - IMUquaternion;
+        FiltRMS(i+1,j+1) = mean(rms(error));
     end
-    % Let's find the ERROR
-    error = OPTIquaternion - IMUquaternion;
-    FiltRMS(i+1) = mean(rms(error));
 end
 
+% surf(beta, zeta, FiltRMS,'LineWidth',0.01)
 %% Plot Filter RMS
+[M, I] = min(FiltRMS);
+bet = (I-1)/5000;   
+zet = 0;
+
 figure('Name', 'Filter RMS');
 hold on;
 plot(beta, FiltRMS);
@@ -106,14 +117,15 @@ title('RMS of the error with reference to \beta');
 xlabel('\beta');
 ylabel('Quaternion Average RMS');
 legend('RMS');
+grid minor
+y1=get(gca,'ylim');
+plot([bet bet],y1, 'r--')
+strmin = ['\beta = ',num2str(bet)];
+text(bet+0.001,y1(2)*19/20,strmin,'HorizontalAlignment','left');
 hold off;
 
 %% Plot Optimal tuning
-[M, I] = min(FiltRMS);
-bet = (I-1)/5000;
-zeta = 0;
-
-AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zeta);
+AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zet);
 IMUquaternion = zeros(length(time), 4);
 GYRObias = zeros(length(time), 3);
 for t = 1:length(time)

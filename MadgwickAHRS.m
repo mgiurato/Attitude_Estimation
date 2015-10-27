@@ -46,29 +46,31 @@ classdef MadgwickAHRS < handle
 
             % Gradient decent algorithm corrective step
             F = [2*(q(2)*q(4) - q(1)*q(3)) - Accelerometer(1)
-                2*(q(1)*q(2) + q(3)*q(4)) - Accelerometer(2)
-                2*(0.5 - q(2)^2 - q(3)^2) - Accelerometer(3)
-                2*b(2)*(0.5 - q(3)^2 - q(4)^2) + 2*b(4)*(q(2)*q(4) - q(1)*q(3)) - Magnetometer(1)
-                2*b(2)*(q(2)*q(3) - q(1)*q(4)) + 2*b(4)*(q(1)*q(2) + q(3)*q(4)) - Magnetometer(2)
-                2*b(2)*(q(1)*q(3) + q(2)*q(4)) + 2*b(4)*(0.5 - q(2)^2 - q(3)^2) - Magnetometer(3)];
-            J = [-2*q(3),                 	2*q(4),                    -2*q(1),                         2*q(2)
-                2*q(2),                 	2*q(1),                    	2*q(4),                         2*q(3)
-                0,                         -4*q(2),                    -4*q(3),                         0
-                -2*b(4)*q(3),               2*b(4)*q(4),               -4*b(2)*q(3)-2*b(4)*q(1),       -4*b(2)*q(4)+2*b(4)*q(2)
-                -2*b(2)*q(4)+2*b(4)*q(2),	2*b(2)*q(3)+2*b(4)*q(1),	2*b(2)*q(2)+2*b(4)*q(4),       -2*b(2)*q(1)+2*b(4)*q(3)
-                2*b(2)*q(3),                2*b(2)*q(4)-4*b(4)*q(2),	2*b(2)*q(1)-4*b(4)*q(3),        2*b(2)*q(2)];
+                 2*(q(1)*q(2) + q(3)*q(4)) - Accelerometer(2)
+                 2*(0.5 - q(2)^2 - q(3)^2) - Accelerometer(3)
+                 2*b(2)*(0.5 - q(3)^2 - q(4)^2) + 2*b(4)*(q(2)*q(4) - q(1)*q(3)) - Magnetometer(1)
+                 2*b(2)*(q(2)*q(3) - q(1)*q(4)) + 2*b(4)*(q(1)*q(2) + q(3)*q(4)) - Magnetometer(2)
+                 2*b(2)*(q(1)*q(3) + q(2)*q(4)) + 2*b(4)*(0.5 - q(2)^2 - q(3)^2) - Magnetometer(3)];
+            J = [       -2*q(3),                 	2*q(4),                  -2*q(1),                      2*q(2)
+                         2*q(2),                 	2*q(1),                   2*q(4),                      2*q(3)
+                           0,                      -4*q(2),                  -4*q(3),                        0
+                      -2*b(4)*q(3),               2*b(4)*q(4),        -4*b(2)*q(3)-2*b(4)*q(1),  -4*b(2)*q(4)+2*b(4)*q(2)
+                 -2*b(2)*q(4)+2*b(4)*q(2),	2*b(2)*q(3)+2*b(4)*q(1),   2*b(2)*q(2)+2*b(4)*q(4),  -2*b(2)*q(1)+2*b(4)*q(3)
+                       2*b(2)*q(3),         2*b(2)*q(4)-4*b(4)*q(2),   2*b(2)*q(1)-4*b(4)*q(3),         2*b(2)*q(2)      ];
             step = (J'*F);
             step = step / norm(step);	% normalise step magnitude
             
             % Compute angular estimated direction of the gyroscope error
-            g_err_x = 2*q(1) * step(2) - 2*q(2) * step(1) - 2*q(3) * step(4) + 2*q(4) * step(3);
-            g_err_y = 2*q(1) * step(3) + 2*q(2) * step(4) - 2*q(3) * step(1) - 2*q(4) * step(2);
-            g_err_z = 2*q(1) * step(4) - 2*q(2) * step(3) + 2*q(3) * step(2) - 2*q(4) * step(1);
+            g_err = 2*quaternProd(q, step');
+            
+%             g_err_x = 2*q(1) * step(2) - 2*q(2) * step(1) - 2*q(3) * step(4) + 2*q(4) * step(3);
+%             g_err_y = 2*q(1) * step(3) + 2*q(2) * step(4) - 2*q(3) * step(1) - 2*q(4) * step(2);
+%             g_err_z = 2*q(1) * step(4) - 2*q(2) * step(3) + 2*q(3) * step(2) - 2*q(4) * step(1);
 
             % Compute and remove the gyroscope baises
-            obj.GyrBias(1) = obj.GyrBias(1) + g_err_x *  obj.Zeta * obj.SamplePeriod;
-            obj.GyrBias(2) = obj.GyrBias(2) + g_err_y *  obj.Zeta * obj.SamplePeriod;
-            obj.GyrBias(3) = obj.GyrBias(3) + g_err_z *  obj.Zeta * obj.SamplePeriod;
+            obj.GyrBias(1) = obj.GyrBias(1) + g_err(1) * obj.Zeta * obj.SamplePeriod;
+            obj.GyrBias(2) = obj.GyrBias(2) + g_err(2) * obj.Zeta * obj.SamplePeriod;
+            obj.GyrBias(3) = obj.GyrBias(3) + g_err(3) * obj.Zeta * obj.SamplePeriod;
             Gyroscope = Gyroscope - obj.GyrBias;
 
             % Compute rate of change of quaternion
@@ -87,11 +89,11 @@ classdef MadgwickAHRS < handle
 
             % Gradient decent algorithm corrective step
             F = [2*(q(2)*q(4) - q(1)*q(3)) - Accelerometer(1)
-                2*(q(1)*q(2) + q(3)*q(4)) - Accelerometer(2)
-                2*(0.5 - q(2)^2 - q(3)^2) - Accelerometer(3)];
-            J = [-2*q(3),	2*q(4),    -2*q(1),	2*q(2)
-                2*q(2),     2*q(1),     2*q(4),	2*q(3)
-                0,         -4*q(2),    -4*q(3),	0    ];
+                 2*(q(1)*q(2) + q(3)*q(4)) - Accelerometer(2)
+                 2*(0.5 - q(2)^2 - q(3)^2) - Accelerometer(3)];
+            J = [-2*q(3),	2*q(4),  -2*q(1),  2*q(2)
+                  2*q(2),   2*q(1),   2*q(4),  2*q(3)
+                    0,     -4*q(2),  -4*q(3),	 0   ];
             step = (J'*F);
             step = step / norm(step);	% normalise step magnitude
 
