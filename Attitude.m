@@ -91,13 +91,13 @@ OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
 %% Tuning iterations
 for i = 0:100
     % Process sensor data through Madgwick algorithm
-    beta(i+1) = i/5000;
+    beta(i+1) = i/500;
     zeta = 0;
     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1),  'Zeta', zeta);
     IMUquaternion = zeros(length(time), 4);
     for t = 1:length(time)
-        %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+        AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+        %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
         IMUquaternion(t, :) = AHRS.Quaternion;
     % Let's find the ERROR
     error = OPTIquaternion - IMUquaternion;
@@ -105,24 +105,24 @@ for i = 0:100
     end
 end
 [M, I] = min(FiltRMS);
-bet = (I-1)/5000;
+bet = (I-1)/500;
 
 %Uncomment only in case of AHRS algorithm
-for i = 0:100
-    % Process sensor data through Madgwick algorithm
-    zeta(i+1) = i/50000;
-    AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zeta(i+1));
-    IMUquaternion = zeros(length(time), 4);
-    for t = 1:length(time)
-        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
-        IMUquaternion(t, :) = AHRS.Quaternion;
-    % Let's find the ERROR
-    error = OPTIquaternion - IMUquaternion;
-    FiltRMSzeta(i+1) = mean(rms(error));
-    end
-end
-[M, I] = min(FiltRMSzeta);
-zet = (I-1)/50000;
+% for i = 0:100
+%     % Process sensor data through Madgwick algorithm
+%     zeta(i+1) = i/50000;
+%     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zeta(i+1));
+%     IMUquaternion = zeros(length(time), 4);
+%     for t = 1:length(time)
+%         AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+%         IMUquaternion(t, :) = AHRS.Quaternion;
+%     % Let's find the ERROR
+%     error = OPTIquaternion - IMUquaternion;
+%     FiltRMSzeta(i+1) = mean(rms(error));
+%     end
+% end
+% [M, I] = min(FiltRMSzeta);
+% zet = (I-1)/50000;
 
 %% Plot Filter RMS
 
@@ -141,27 +141,28 @@ text(bet+0.001,y1(2)*19/20,strmin,'HorizontalAlignment','left');
 hold off;
 
 %Uncomment only in case of AHRS algorithm
-figure('Name', 'Filter RMS');
-hold on;
-plot(zeta, FiltRMSzeta);
-title('RMS of the error with reference to \zeta');
-xlabel('\zeta');
-ylabel('Quaternion Average RMS');
-legend('RMS');
-grid minor
-y2=get(gca,'ylim');
-plot([zet zet],y2, 'r--')
-strmin = ['\zeta = ',num2str(zet)];
-text(zet+0.0001,y2(2)*19/20,strmin,'HorizontalAlignment','left');
-hold off;
+% figure('Name', 'Filter RMS');
+% hold on;
+% plot(zeta, FiltRMSzeta);
+% title('RMS of the error with reference to \zeta');
+% xlabel('\zeta');
+% ylabel('Quaternion Average RMS');
+% legend('RMS');
+% grid minor
+% y2=get(gca,'ylim');
+% plot([zet zet],y2, 'r--')
+% strmin = ['\zeta = ',num2str(zet)];
+% text(zet+0.0001,y2(2)*19/20,strmin,'HorizontalAlignment','left');
+% hold off;
 
 %% Plot Optimal tuning
+zet = 0;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zet);
 IMUquaternion = zeros(length(time), 4);
 GYRObias = zeros(length(time), 3);
 for t = 1:length(time)
-    %AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-    AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+    %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
     GYRObias(t,:) = AHRS.GyrBias;
 end
@@ -172,45 +173,83 @@ OPTIeuler = quatern2euler(quaternConj(OPTIquaternion)) * (180/pi);
 FinalError = (OPTIeuler - IMUeuler);
 
 %% Plot 
-figure('Name', 'Quaternions');
+% figure('Name', 'Quaternions');
+% hold on;
+% plot(time, IMUquaternion(:,1),'y');
+% plot(time, IMUquaternion(:,2),'r');
+% plot(time, IMUquaternion(:,3),'g');
+% plot(time, IMUquaternion(:,4),'b');
+% plot(time, OPTIquaternion(:,1),'y-.');
+% plot(time, OPTIquaternion(:,2),'r-.');
+% plot(time, OPTIquaternion(:,3),'g-.');
+% plot(time, OPTIquaternion(:,4),'b-.');
+% title('Quaternions');
+% xlabel('Time [s]');
+% ylabel('Quaternion');
+% legend('q_{0,IMU}','q_{1,IMU}','q_{2,IMU}','q_{3,IMU}','q_{0,opti}','q_{1,opti}','q_{2,opti}','q_{3,opti}');
+% hold off;
+
+figure('Name', 'Euler Angles-phi');
 hold on;
-plot(time, IMUquaternion(:,1),'y');
-plot(time, IMUquaternion(:,2),'r');
-plot(time, IMUquaternion(:,3),'g');
-plot(time, IMUquaternion(:,4),'b');
-plot(time, OPTIquaternion(:,1),'y-.');
-plot(time, OPTIquaternion(:,2),'r-.');
-plot(time, OPTIquaternion(:,3),'g-.');
-plot(time, OPTIquaternion(:,4),'b-.');
-title('Quaternions');
+plot(time, IMUeuler(:,1), 'r');
+plot(time, OPTIeuler(:,1), 'r-.');
+title('Euler angle: \phi');
 xlabel('Time [s]');
-ylabel('Quaternion');
-legend('q_{0,IMU}','q_{1,IMU}','q_{2,IMU}','q_{3,IMU}','q_{0,opti}','q_{1,opti}','q_{2,opti}','q_{3,opti}');
+ylabel('Angle [deg]');
+legend('\phi_{IMU}', '\phi_{Opti}');
+grid minor
+hold off;
+
+figure('Name', 'Euler Angles-theta');
+hold on;
+plot(time, IMUeuler(:,2), 'g');
+plot(time, OPTIeuler(:,2), 'g-.');
+title('Euler angle: \theta');
+xlabel('Time [s]');
+ylabel('Angle [deg]');
+legend('\theta_{IMU}', '\theta_{Opti}');
+grid minor
 hold off;
 
 figure('Name', 'Euler Angles');
 hold on;
-plot(time, IMUeuler(:,1), 'r');
-plot(time, IMUeuler(:,2), 'g');
 plot(time, IMUeuler(:,3), 'b');
-plot(time, OPTIeuler(:,1), 'r-.');
-plot(time, OPTIeuler(:,2), 'g-.');
 plot(time, OPTIeuler(:,3), 'b-.');
-title('Euler angles');
+title('Euler angle: \psi');
 xlabel('Time [s]');
 ylabel('Angle [deg]');
-legend('\phi_{IMU}', '\theta_{IMU}', '\psi_{IMU}', '\phi_{Opti}', '\theta_{Opti}', '\psi_{Opti}');
+legend('\psi_{IMU}', '\psi_{Opti}');
+grid minor
 hold off;
 
-figure('Name', 'Relative Percentual Error');
+figure('Name', 'Relative Percentual Error-phi');
 hold on;
 plot(time, FinalError(:,1), 'r');
-plot(time, FinalError(:,2), 'g');
-plot(time, FinalError(:,3), 'b');
-title('Euler angles - Error');
+title('error: \phi');
 xlabel('Time [s]');
 ylabel('Angle [deg]');
-legend('\phi_{error}', '\theta_{error}', '\psi_{error}');
+legend('\phi_{error}');
+grid minor
+hold off;
+
+figure('Name', 'Relative Percentual Error-theta');
+hold on;
+plot(time, FinalError(:,2), 'g');
+title('error: \theta');
+xlabel('Time [s]');
+ylabel('Angle [deg]');
+legend('\theta_{error}');
+grid minor
+hold off;
+
+figure('Name', 'Relative Percentual Error-psi');
+hold on;
+plot(time, FinalError(:,3), 'b');
+title('error: \psi');
+xlabel('Time [s]');
+ylabel('Angle [deg]');
+legend('\psi_{error}');
+grid minor
 hold off;
 
 %% End of code
