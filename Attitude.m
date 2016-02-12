@@ -60,7 +60,7 @@ Gyroscope_c(:,3) = gain_g(3) * (gyr(:,3) - mean(gyr(1:IMUstart-1,3)));
 % Gyroscope_c(:,3) = gain_g(3) * gyr(:,3);
 
 %Import Optitrack data
-filename = '/home/pela/Documents/MATLAB/Attitude_Estimation/log_opti3.txt';
+filename = 'C:\Users\Mattia\Documents\MATLAB\Attitude_Estimation/log_opti3.txt';
 delimiter = ',';
 startRow = 2;
 formatSpec = '%f%f%f%s%f%f%f%f%f%f%f%[^\n\r]';
