@@ -43,11 +43,11 @@ classdef KalmanAHRS < handle
             
             % Normalise accelerometer measurement
             if(norm(Accelerometer) == 0), return; end % handle NaN
-            b1 = Accelerometer / norm(Accelerometer); % normalise magnitude
+            b_acc = Accelerometer / norm(Accelerometer); % normalise magnitude
             
             % Normalise magnetometer measurement
             if(norm(Magnetometer) == 0), return; end % handle NaN
-            b2 = Magnetometer / norm(Magnetometer); % normalise magnitude
+            b_mag = Magnetometer / norm(Magnetometer); % normalise magnitude
             
             % Propagated values
             deltaXkm = obj.deltaX;
@@ -73,7 +73,7 @@ classdef KalmanAHRS < handle
 %                      2*(qkm(1)*qkm(2) - qkm(3)*qkm(4))  -qkm(1)^2+qkm(2)^2-qkm(3)^2+qkm(4)^2   2*(qkm(2)*qkm(3) + qkm(1)*qkm(4))  ;
 %                      2*(qkm(1)*qkm(3) + qkm(2)*qkm(4))    2*(qkm(2)*qkm(3) - qkm(1)*qkm(4))  -qkm(1)^2-qkm(2)^2+qkm(3)^2+qkm(4)^2];
             
-            %%      
+            %% Accelerometer and Magnetometer correction     
             for i = 1:1:2                
                 if i == 1
                     % Reference direction of Earth's gravitational field
@@ -81,7 +81,7 @@ classdef KalmanAHRS < handle
                              0 ;
                              1];
                     Aqmr = Aqkm*r_acc;
-                    b = b1;
+                    b = b_acc;
                     sigma = sigma_acc;
                 elseif i == 2
                     % Reference direction of Earth's magnetic feild
@@ -90,7 +90,7 @@ classdef KalmanAHRS < handle
                                     0          ;
                                    h(3)       ];
                     Aqmr = Aqkm*r_mag;
-                    b = b2;
+                    b = b_mag;
                     sigma = sigma_mag;
                 end
                 
@@ -105,12 +105,12 @@ classdef KalmanAHRS < handle
                 % Gain
                 Kk = (Pkm*Hk')/(Hk*Pkm*Hk' + R);
                 
+                % Update Covariance
+                Pkp = (eye(6) - Kk*Hk)*Pkm*(eye(6) - Kk*Hk)' + Kk*R*Kk';
+                
                 % Update state
                 epk = b - Aqmr; %residual
                 deltaXkp = deltaXkm + Kk*(epk - Hk*deltaXkm);
-                
-                % Update Covariance
-                Pkp = (eye(6) - Kk*Hk)*Pkm*(eye(6) - Kk*Hk)' + Kk*R*Kk';
                 
                 Pkm = Pkp;
                 deltaXkm = deltaXkp;
