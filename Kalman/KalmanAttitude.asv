@@ -17,8 +17,7 @@ load('logsync.mat')
 % sigma_u = diag(std(Gyroscope))./3
 
 %% Filtering loop
-% IMUsample = 0.01;
-IMUsample = 1/68;
+IMUsample = 0.01;
 sigma_acc = 0.01;
 sigma_mag = 0.1;
 sigma_u = 0.000001;
@@ -28,7 +27,7 @@ Po = 0.001*eye(6);
 start = 0;
 stop = 65;
 
-Kalman = KalmanAHRS('SamplePeriod', IMUsample, 'sigma_acc', sigma_acc, 'sigma_mag', sigma_mag, 'sigma_u', sigma_u, 'sigma_v', sigma_v,'P', Po);
+Kalman = KalmanAHRS('SamplePeriod', IMUsample, 'sigma_acc', sigma_acc, 'sigma_mag', sigma_mag, 'sigma_u', sigma_u, 'sigma_v', sigma_v,'P', Po, );
 IMUquaternion = zeros(length(IMUtime), 4);
 IMUomega = zeros(length(IMUtime), 3);
 IMUbias = zeros(length(IMUtime), 3);
