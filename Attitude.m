@@ -6,98 +6,22 @@ clear all
 close all 
 clc
 
-%% Parameters definition
-%Calibration
-bias_a = [-0.033101 -0.026818 0.55087];
-gain_a = [0.0093816 0.0096461 0.0099341];
-bias_m = [0.1995 0.12946 -0.40552];
-gain_m = [0.0023094 0.0023691 0.0026049];
-bias_g = [-0.13963 -0.048177 0.053517];
-gain_g = [0.00032508 0.0003161 0.00032548];
-
-%Import
-RAW = dlmread('log_imuraw3.txt');
-%test0
-% IMUstart = 500;
-% dddel = 3900;
-% OPTIstart = 812;
-%test1
-% IMUstart = 470;
-% dddel = 4500;
-% OPTIstart = 682;
-%test1-ident
-% IMUstart = 470;
-% dddel = 2000;
-% OPTIstart = 682;
-%test3
-IMUstart = 2350;
-dddel = 5340;
-OPTIstart = 1961;
-
-IMUend = IMUstart + dddel;
-OPTIend = OPTIstart + dddel;
-
-IMUsample = 1/100;
-
 %% Import logged data
-%Import IMU data
-acc = RAW(:,1:3);
-gyr = RAW(:,4:6);
-mag = RAW(:,7:9);
 
-%Calibrate sensors
-Accelerometer_c(:,1) = gain_a(1) * acc(:,1) - bias_a(1);
-Accelerometer_c(:,2) = gain_a(2) * acc(:,2) - bias_a(2);
-Accelerometer_c(:,3) = gain_a(3) * acc(:,3) - bias_a(3);
-Magnetometer_c(:,1) = gain_m(1) * mag(:,1) - bias_m(1);
-Magnetometer_c(:,2) = gain_m(2) * mag(:,2) - bias_m(2);
-Magnetometer_c(:,3) = gain_m(3) * mag(:,3) - bias_m(3);
-Gyroscope_c(:,1) = gain_g(1) * (gyr(:,1) - mean(gyr(1:IMUstart-1,1)));
-Gyroscope_c(:,2) = gain_g(2) * (gyr(:,2) - mean(gyr(1:IMUstart-1,2)));
-Gyroscope_c(:,3) = gain_g(3) * (gyr(:,3) - mean(gyr(1:IMUstart-1,3)));
-% Gyroscope_c(:,1) = gain_g(1) * gyr(:,1);
-% Gyroscope_c(:,2) = gain_g(2) * gyr(:,2);
-% Gyroscope_c(:,3) = gain_g(3) * gyr(:,3);
+load('logsync_calib.mat');
 
-%Import Optitrack data
-filename = 'C:\Users\Mattia\Documents\MATLAB\Attitude_Estimation/log_opti3.txt';
-delimiter = ',';
-startRow = 2;
-formatSpec = '%f%f%f%s%f%f%f%f%f%f%f%[^\n\r]';
-fileID = fopen(filename,'r');
-dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'EmptyValue' ,NaN,'HeaderLines' ,startRow-1, 'ReturnOnError', false);
-fclose(fileID);
-seq = dataArray{:, 2};
-stamp = dataArray{:, 3};
-OPTItime = (stamp - stamp(1))*10e-10;
-orientation3 = dataArray{:, 8};
-orientation2 = dataArray{:, 9};
-orientation1 = dataArray{:, 10};
-orientation0 = dataArray{:, 11};
-OPTIquaternion_c = [orientation0 orientation3 orientation2 orientation1];
-
-OPTIsample = mean(diff(OPTItime));
-
-clearvars RAW filename delimiter startRow formatSpec fileID dataArray ans stamp;
-
-%% Resizing vectors
-Accelerometer = Accelerometer_c(IMUstart:IMUend, :);
-Gyroscope = Gyroscope_c(IMUstart:IMUend, :);
-Magnetometer = Magnetometer_c(IMUstart:IMUend, :);
-time = (0:IMUsample:(length(Accelerometer)-1)*IMUsample)';
-
-OPTIquaternion = OPTIquaternion_c(OPTIstart:OPTIend,:);
+Gyroscope = Gyroscope_f-ones(length(Gyroscope),3)*diag(mean(Gyroscope(1:100,:)));
 
 %% Tuning iterations
 for i = 0:100
     % Process sensor data through Madgwick algorithm
-    beta(i+1) = i/500;
+    beta(i+1) = i/5000;
     zeta = 0;
     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1),  'Zeta', zeta);
-    IMUquaternion = zeros(length(time), 4);
-    for t = 1:length(time)
-        AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    IMUquaternion = zeros(length(IMUtime), 4);
+    for t = 1:length(IMUtime)
+%         AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
         IMUquaternion(t, :) = AHRS.Quaternion;
     % Let's find the ERROR
     error = OPTIquaternion - IMUquaternion;
@@ -105,15 +29,15 @@ for i = 0:100
     end
 end
 [M, I] = min(FiltRMS);
-bet = (I-1)/500;
+bet = (I-1)/5000;
 
 %Uncomment only in case of AHRS algorithm
 % for i = 0:100
 %     % Process sensor data through Madgwick algorithm
 %     zeta(i+1) = i/50000;
 %     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zeta(i+1));
-%     IMUquaternion = zeros(length(time), 4);
-%     for t = 1:length(time)
+%     IMUquaternion = zeros(length(IMUtime), 4);
+%     for t = 1:length(IMUtime)
 %         AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
 %         IMUquaternion(t, :) = AHRS.Quaternion;
 %     % Let's find the ERROR
@@ -158,11 +82,11 @@ hold off;
 %% Plot Optimal tuning
 zet = 0;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zet);
-IMUquaternion = zeros(length(time), 4);
-GYRObias = zeros(length(time), 3);
-for t = 1:length(time)
-    AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-    %AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+IMUquaternion = zeros(length(IMUtime), 4);
+GYRObias = zeros(length(IMUtime), 3);
+for t = 1:length(IMUtime)
+%     AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
+    AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
     GYRObias(t,:) = AHRS.GyrBias;
 end
@@ -175,26 +99,26 @@ FinalError = (OPTIeuler - IMUeuler);
 %% Plot 
 % figure('Name', 'Quaternions');
 % hold on;
-% plot(time, IMUquaternion(:,1),'y');
-% plot(time, IMUquaternion(:,2),'r');
-% plot(time, IMUquaternion(:,3),'g');
-% plot(time, IMUquaternion(:,4),'b');
-% plot(time, OPTIquaternion(:,1),'y-.');
-% plot(time, OPTIquaternion(:,2),'r-.');
-% plot(time, OPTIquaternion(:,3),'g-.');
-% plot(time, OPTIquaternion(:,4),'b-.');
+% plot(IMUtime, IMUquaternion(:,1),'y');
+% plot(IMUtime, IMUquaternion(:,2),'r');
+% plot(IMUtime, IMUquaternion(:,3),'g');
+% plot(IMUtime, IMUquaternion(:,4),'b');
+% plot(IMUtime, OPTIquaternion(:,1),'y-.');
+% plot(IMUtime, OPTIquaternion(:,2),'r-.');
+% plot(IMUtime, OPTIquaternion(:,3),'g-.');
+% plot(IMUtime, OPTIquaternion(:,4),'b-.');
 % title('Quaternions');
-% xlabel('Time [s]');
+% xlabel('IMUtime [s]');
 % ylabel('Quaternion');
 % legend('q_{0,IMU}','q_{1,IMU}','q_{2,IMU}','q_{3,IMU}','q_{0,opti}','q_{1,opti}','q_{2,opti}','q_{3,opti}');
 % hold off;
 
 figure('Name', 'Euler Angles-phi');
 hold on;
-plot(time, IMUeuler(:,1), 'r');
-plot(time, OPTIeuler(:,1), 'r-.');
+plot(IMUtime, IMUeuler(:,1), 'r');
+plot(IMUtime, OPTIeuler(:,1), 'r-.');
 title('Euler angle: \phi');
-xlabel('Time [s]');
+xlabel('IMUtime [s]');
 ylabel('Angle [deg]');
 legend('\phi_{IMU}', '\phi_{Opti}');
 grid minor
@@ -202,10 +126,10 @@ hold off;
 
 figure('Name', 'Euler Angles-theta');
 hold on;
-plot(time, IMUeuler(:,2), 'g');
-plot(time, OPTIeuler(:,2), 'g-.');
+plot(IMUtime, IMUeuler(:,2), 'g');
+plot(IMUtime, OPTIeuler(:,2), 'g-.');
 title('Euler angle: \theta');
-xlabel('Time [s]');
+xlabel('IMUtime [s]');
 ylabel('Angle [deg]');
 legend('\theta_{IMU}', '\theta_{Opti}');
 grid minor
@@ -213,40 +137,40 @@ hold off;
 
 figure('Name', 'Euler Angles');
 hold on;
-plot(time, IMUeuler(:,3), 'b');
-plot(time, OPTIeuler(:,3), 'b-.');
+plot(IMUtime, IMUeuler(:,3), 'b');
+plot(IMUtime, OPTIeuler(:,3), 'b-.');
 title('Euler angle: \psi');
-xlabel('Time [s]');
+xlabel('IMUtime [s]');
 ylabel('Angle [deg]');
 legend('\psi_{IMU}', '\psi_{Opti}');
 grid minor
 hold off;
 
-figure('Name', 'Relative Percentual Error-phi');
+figure('Name', 'Relative Error-phi');
 hold on;
-plot(time, FinalError(:,1), 'r');
+plot(IMUtime, FinalError(:,1), 'r');
 title('error: \phi');
-xlabel('Time [s]');
+xlabel('IMUtime [s]');
 ylabel('Angle [deg]');
 legend('\phi_{error}');
 grid minor
 hold off;
 
-figure('Name', 'Relative Percentual Error-theta');
+figure('Name', 'Relative Error-theta');
 hold on;
-plot(time, FinalError(:,2), 'g');
+plot(IMUtime, FinalError(:,2), 'g');
 title('error: \theta');
-xlabel('Time [s]');
+xlabel('IMUtime [s]');
 ylabel('Angle [deg]');
 legend('\theta_{error}');
 grid minor
 hold off;
 
-figure('Name', 'Relative Percentual Error-psi');
+figure('Name', 'Relative Error-psi');
 hold on;
-plot(time, FinalError(:,3), 'b');
+plot(IMUtime, FinalError(:,3), 'b');
 title('error: \psi');
-xlabel('Time [s]');
+xlabel('IMUtime [s]');
 ylabel('Angle [deg]');
 legend('\psi_{error}');
 grid minor
