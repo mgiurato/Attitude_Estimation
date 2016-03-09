@@ -16,13 +16,13 @@ Magnetometer = Magnetometer(2:length(Magnetometer)-1,:);
 IMUtime = IMUtime(1:length(IMUtime)-2);
 
 %% Sigma estimation
-sigma_gyr = std(Gyroscope);
-sigma_acc = std(Accelerometer);
-sigma_mag = std(Magnetometer);
+sigma_gyr = std(Gyroscope(1:300,:));
+sigma_acc = std(Accelerometer(1:300,:));
+sigma_mag = std(Magnetometer(1:300,:));
 
-mean_gyr = mean(Gyroscope);
-mean_acc = mean(Accelerometer);
-mean_mag = mean(Magnetometer);
+mean_gyr = mean(Gyroscope(1:300,:));
+mean_acc = mean(Accelerometer(1:300,:));
+mean_mag = mean(Magnetometer(1:300,:));
 
 %% Output
 disp('The estimated Gyroscope standard deviations are:')

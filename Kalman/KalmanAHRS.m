@@ -52,7 +52,6 @@ classdef KalmanAHRS < handle
             betakm = obj.bias;
             qkm = obj.Quaternion;
             Pkm = obj.P;
-%             deltaXkm = obj.deltaX;
             deltaXkm = zeros(6,1);
             
             %% Compute
@@ -145,18 +144,13 @@ classdef KalmanAHRS < handle
                          (.5*sigma_u^2*dt^2)*eye(3)            (sigma_u^2*dt)*eye(3)  ];
             Pk = Phi*Pkp*Phi' + gamma*Q*gamma';
             
-            % State propagation
-%             F = [-omekhatx  -eye(3) ;
-%                   zeros(3) zeros(3)];
-%             deltaXk = F*deltaXkp*dt;
-            deltaXk = Phi*deltaXkp*dt;
                      
             %% Outputs            
             obj.Quaternion = qk / norm(qk); % normalise quaternion
             obj.omehat = omekhat;
             obj.bias = betakp;
             obj.P = Pk;
-            obj.deltaX = deltaXk;           
+            obj.deltaX = deltaXkp;           
         end
     end
 end

@@ -11,11 +11,23 @@ load('logsync_calib.mat')
 
 %% Filtering loop
 IMUsample = 0.01;
-sigma_acc = diag([0.77418 0.66936 0.71485])/10;
-sigma_mag = diag([0.053667 0.034382 0.071054])*100;
-sigma_u = diag([0.13807 0.11053 0.063833])/100;
+%Motors working
+% sigma_acc = diag([0.77418 0.66936 0.71485]);
+% sigma_mag = diag([0.053667 0.034382 0.071054])*100;
+% sigma_u = diag([0.13807 0.11053 0.063833]);
+% sigma_v = 0.0001;
+%Motors not working
+sigma_acc = diag([0.019184 0.012992 0.032874]);
+sigma_mag = diag([0.0038115 0.0059517 0.016515])*500;
+sigma_u = diag([0.0023973 0.0021975 0.0013524])/10;
 sigma_v = 0.0001;
-Po = 1*eye(6);
+%Brutal guess
+% sigma_acc = 0.01;
+% sigma_mag = 1;
+% sigma_u = 0.00001;
+% sigma_v = 0.0001;
+
+Po = 0.1*eye(6);
 
 Kalman = KalmanAHRS('SamplePeriod', IMUsample, 'sigma_acc', sigma_acc, 'sigma_mag', sigma_mag, 'sigma_u', sigma_u, 'sigma_v', sigma_v,'P', Po);
 IMUquaternion = zeros(length(IMUtime), 4);
@@ -31,24 +43,38 @@ for t = 1:length(IMUtime)
 %     AHRS.P
 end    
 
-% beta = 0.0028;
-beta = 0.0002;
+beta = 0.0028;
+% beta = 0.0002;
 zeta = 0;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta,  'Zeta', zeta);
 MADquaternion = zeros(length(IMUtime), 4);
 GYRObias = zeros(length(IMUtime), 3);
 for t = 1:length(IMUtime)
-%     AHRS.UpdateIMU(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), Accelerometer(t,:));	% gyroscope units must be radians
-    AHRS.Update(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    AHRS.UpdateIMU(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), Accelerometer(t,:));	% gyroscope units must be radians
+%     AHRS.Update(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     MADquaternion(t, :) = AHRS.Quaternion;
 end
 
 [Y, P, R] = quat2angle([IMUquaternion(:,4) IMUquaternion(:,1) IMUquaternion(:,2) IMUquaternion(:,3)]);
-RPYkal = [R -P -Y].*180/pi;
+RPYkal = [R -P -Y];
 
-[Y, P, R] = quat2angle([-MADquaternion(:,4) -MADquaternion(:,3) MADquaternion(:,2) MADquaternion(:,1)]);
-RPYmad = [R -P -Y].*180/pi;
+RPYmad = quatern2euler(MADquaternion);
+RPYmad = RPYmad *diag([-1 1 1]);
 
+OPTIeuler_f = OPTIeuler_f + ones(length(OPTIeuler_f), 3)*diag([0.5*pi/180 0.5*pi/180 -0.1*pi/180]);
+
+%% Comparison
+errorKal_R = RPYkal(:,1) - OPTIeuler_f(:,1);
+errorKal_P = RPYkal(:,2) - OPTIeuler_f(:,2);
+errorKal_Y = RPYkal(:,3) - OPTIeuler_f(:,3);
+errorKal = [rms(errorKal_R) rms(errorKal_P) rms(errorKal_Y)]
+
+errorMad_R = RPYmad(:,1) - OPTIeuler_f(:,1);
+errorMad_P = RPYmad(:,2) - OPTIeuler_f(:,2);
+errorMad_Y = RPYmad(:,3) - OPTIeuler_f(:,3);
+errorMad = [rms(errorMad_R) rms(errorMad_P) rms(errorMad_Y)]
+
+%% Plot results
 % figure('name', 'Quaternion')
 % plot(IMUtime, IMUquaternion)
 % title('$$\hat{q}$$','Interpreter','latex')
@@ -58,35 +84,40 @@ RPYmad = [R -P -Y].*180/pi;
 % legend('q_1', 'q_2', 'q_3', 'q_4')
 
 figure('name', 'Euler_phi')
-plot(IMUtime, RPYkal(:,1))
+plot(IMUtime, OPTIeuler_f(:,1)*180/pi,'linestyle','-','linewidth',.5,'color','black')
 hold on
-plot(IMUtime, RPYmad(:,1))
-plot(OPTItime, OPTIeuler_f(:,1)*180/pi)
+plot(IMUtime, RPYmad(:,1)*180/pi,'linestyle','--','linewidth',2,'color','r')
+plot(OPTItime, RPYkal(:,1)*180/pi,'linestyle','-.','linewidth',2,'color','b')
 hold off
 grid minor
-title('Euler Angles')
-legend('\phi_{Kalman}', '\phi_{Madgwick}','\phi_{OptiTrack}')
+title('Euler Angle \phi')
+xlabel('[s]')
+ylabel('[deg]')
+legend('OptiTrack','Madgwick','Kalman')
 
 figure('name', 'Euler_theta')
-plot(IMUtime, RPYkal(:,2))
+plot(IMUtime, OPTIeuler_f(:,2)*180/pi,'linestyle','-','linewidth',.5,'color','black')
 hold on
-plot(IMUtime, RPYmad(:,2))
-plot(OPTItime, OPTIeuler_f(:,2)*180/pi)
+plot(IMUtime, RPYmad(:,2)*180/pi,'linestyle','--','linewidth',2,'color','r')
+plot(OPTItime, RPYkal(:,2)*180/pi,'linestyle','-.','linewidth',2,'color','b')
 hold off
 grid minor
-legend('\theta_{Kalman}', '\theta_{Madgwick}','\theta_{OptiTrack}')
+title('Euler Angle \theta')
+xlabel('[s]')
+ylabel('[deg]')
+legend('OptiTrack','Madgwick','Kalman')
 
 figure('name', 'Euler_psi')
-yaw_k = unwrap(RPYkal(:,3));
-plot(IMUtime, yaw_k)
+plot(IMUtime, OPTIeuler_f(:,3)*180/pi,'linestyle','-','linewidth',.5,'color','black')
 hold on
-yaw_m = unwrap(RPYmad(:,3));
-plot(IMUtime, yaw_m)
-plot(OPTItime, OPTIeuler_f(:,3)*180/pi);
+plot(IMUtime, RPYmad(:,3)*180/pi,'linestyle','--','linewidth',2,'color','r')
+plot(OPTItime, RPYkal(:,3)*180/pi,'linestyle','-.','linewidth',2,'color','b')
 hold off
 grid minor
-legend('\psi_{Kalman}', '\psi_{Madgwick}','\psi_{OptiTrack}')
+title('Euler Angle \psi')
 xlabel('[s]')
+ylabel('[deg]')
+legend('OptiTrack','Madgwick','Kalman')
 
 % figure('name', 'Angular speeds')
 % plot(IMUtime, IMUomega)
@@ -95,12 +126,12 @@ xlabel('[s]')
 % xlabel('[s]')
 % ylabel('[rad/s]')
 
-figure('name', 'Bias')
-plot(IMUtime, IMUbias);
-title('$$\beta$$','Interpreter','latex')
-grid minor
-xlabel('[s]')
-ylabel('[rad/s]')
+% figure('name', 'Bias')
+% plot(IMUtime, IMUbias);
+% title('$$\beta$$','Interpreter','latex')
+% grid minor
+% xlabel('[s]')
+% ylabel('[rad/s]')
 
 % figure('name', 'dalpha')
 % plot(IMUtime, dalpha)
