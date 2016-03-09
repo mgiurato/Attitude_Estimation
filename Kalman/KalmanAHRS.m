@@ -15,6 +15,7 @@ classdef KalmanAHRS < handle
         bias = zeros(3,1);
         P = eye(6);
         deltaX = zeros(6,1);
+        e = zeros(3,1);
     end
     
     %% Public methods
@@ -70,48 +71,74 @@ classdef KalmanAHRS < handle
             Aqkm = Xi'*Psi;
             
             %% Accelerometer and Magnetometer correction     
-            for i = 1:1:2                
-                if i == 1
-                    % Reference direction of Earth's gravitational field
-                    r_acc = [0 ;
-                             0 ;
-                             1];
-                    Aqmr = Aqkm*r_acc;
-                    b = b_acc;
-                    sigma = sigma_acc;
-                elseif i == 2
-                    % Reference direction of Earth's magnetic feild
-                    h = Aqkm'*Magnetometer;
-                    r_mag = [norm([h(1) h(2)]) ;
-                                    0          ;
-                                   h(3)       ];
-                    Aqmr = Aqkm*r_mag;
-                    b = b_mag;
-                    sigma = sigma_mag;
-                end
-                
-                R = sigma^2*eye(3);
-                
-                % Sensitivity Matrix
-                Aqmrx = [      0   -Aqmr(3)  Aqmr(2) ;
-                           Aqmr(3)    0     -Aqmr(1) ;
-                          -Aqmr(2)  Aqmr(1)    0    ];
-                Hk = [Aqmrx zeros(3)];
-                
-                % Gain
-                Kk = (Pkm*Hk')/(Hk*Pkm*Hk' + R);
-                
-                % Update Covariance
-                Pkp = (eye(6) - Kk*Hk)*Pkm*(eye(6) - Kk*Hk)' + Kk*R*Kk';
-                
-                % Update state
-                epk = b - Aqmr; %residual
-                deltaXkp = deltaXkm + Kk*(epk - Hk*deltaXkm);
-                
-                Pkm = Pkp;
-                deltaXkm = deltaXkp;
-            end
-                  
+%             for i = 1:1:2                
+%                 if i == 1
+%                     % Reference direction of Earth's gravitational field
+%                     r_acc = [0 ;
+%                              0 ;
+%                              1];
+%                     Aqmr = Aqkm*r_acc;
+%                     b = b_acc;
+%                     sigma = sigma_acc;
+%                 elseif i == 2
+%                     % Reference direction of Earth's magnetic feild
+%                     h = Aqkm'*Magnetometer;
+%                     r_mag = [norm([h(1) h(2)]) ;
+%                                     0          ;
+%                                    h(3)       ];
+%                     Aqmr = Aqkm*r_mag;
+%                     b = b_mag;
+%                     sigma = sigma_mag;
+%                 end
+%                 
+%                 R = sigma^2*eye(3);
+%                 
+%                 % Sensitivity Matrix
+%                 Aqmrx = [      0   -Aqmr(3)  Aqmr(2) ;
+%                            Aqmr(3)    0     -Aqmr(1) ;
+%                           -Aqmr(2)  Aqmr(1)    0    ];
+%                 Hk = [Aqmrx zeros(3)];
+%                 
+%                 % Gain
+%                 Kk = (Pkm*Hk')/(Hk*Pkm*Hk' + R);
+%                 
+%                 % Update Covariance
+%                 Pkp = (eye(6) - Kk*Hk)*Pkm*(eye(6) - Kk*Hk)' + Kk*R*Kk';
+%                 
+%                 % Update state
+%                 epk = b - Aqmr; %residual
+%                 deltaXkp = deltaXkm + Kk*(epk - Hk*deltaXkm);
+%                 
+%                 Pkm = Pkp;
+%                 deltaXkm = deltaXkp;
+%             end
+            %% Accelerometer correction
+            % Reference direction of Earth's gravitational field
+            r_acc = [0 ;
+                     0 ;
+                     1];
+            Aqmr = Aqkm*r_acc;
+            b = b_acc;
+            
+            R = sigma_acc^2*eye(3);
+            
+            % Sensitivity Matrix
+            Aqmrx = [      0   -Aqmr(3)  Aqmr(2) ;
+                       Aqmr(3)    0     -Aqmr(1) ;
+                      -Aqmr(2)  Aqmr(1)    0    ];
+            Hk = [Aqmrx zeros(3)];
+            
+            % Gain
+            Kk = (Pkm*Hk')/(Hk*Pkm*Hk' + R);
+            
+            % Update Covariance
+            Pkp = (eye(6) - Kk*Hk)*Pkm*(eye(6) - Kk*Hk)' + Kk*R*Kk';
+            
+            % Update state
+            epk = b - Aqmr; %residual
+            yk = epk - Hk*deltaXkm;
+            deltaXkp = deltaXkm + Kk*yk;
+            
             % Update quaternion
             dalpha = deltaXkp(1:3,1);
             qkp = qkm + .5*Xi*dalpha;
@@ -151,6 +178,7 @@ classdef KalmanAHRS < handle
             obj.bias = betakp;
             obj.P = Pk;
             obj.deltaX = deltaXkp;           
+            obj.e = yk;
         end
     end
 end

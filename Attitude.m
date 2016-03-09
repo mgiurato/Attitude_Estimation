@@ -8,7 +8,7 @@ clc
 
 %% Import logged data
 
-load('logsync_calib.mat');
+load('logsync_0309_0.mat');
 
 Gyroscope = Gyroscope_f-ones(length(Gyroscope),3)*diag(mean(Gyroscope(1:100,:)));
 
