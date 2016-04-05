@@ -4,18 +4,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all 
-clc
+% clc
 
 %% Data import
-load('logsync_calib.mat');
+load('logsync_0309_1.mat');
 
 %% Filtering loop
 IMUsample = 0.01;
 %Motors working
 sigma_acc = diag([0.77418 0.66936 0.71485]);
-sigma_mag = diag([0.053667 0.034382 0.071054])*500;
-sigma_u = diag([0.13807 0.11053 0.063833])/100;
-sigma_v = diag([0.001 0.001 1]);
+sigma_mag = 500*diag([0.053667 0.034382 0.071054]);
+sigma_u = diag([0.13807 0.11053 0.063833/10])/100;
+sigma_v = diag([0.00001 0.00001 0.05]);
+% sigma_acc = diag([0.77418 0.66936 0.71485]);
+% sigma_mag = diag([0.053667 0.034382 0.071054]);
+% sigma_u = diag([0.13807 0.11053 0.063833]);
+% sigma_v = diag([0.00001 0.00001 0.001]);
 %Motors not working
 % sigma_acc = diag([0.019184 0.012992 0.032874]);
 % sigma_mag = diag([0.0038115 0.0059517 0.016515])*500;
@@ -27,44 +31,41 @@ sigma_v = diag([0.001 0.001 1]);
 % sigma_u = 0.00001;
 % sigma_v = 0.0001;
 
-Po = 0.1*eye(6);
-
-Kalman = KalmanAHRS('SamplePeriod', IMUsample, 'sigma_acc', sigma_acc, 'sigma_mag', sigma_mag, 'sigma_u', sigma_u, 'sigma_v', sigma_v,'P', Po);
+Kalman = KalmanAHRS('SamplePeriod', IMUsample, 'sigma_acc', sigma_acc, 'sigma_mag', sigma_mag, 'sigma_u', sigma_u, 'sigma_v', sigma_v);
 IMUquaternion = zeros(length(IMUtime), 4);
+RPYkal = zeros(length(IMUtime), 3);
 IMUomega = zeros(length(IMUtime), 3);
 IMUbias = zeros(length(IMUtime), 3);
 dalpha = zeros(length(IMUtime), 3);
 ep = zeros(length(IMUtime), 3);
 for t = 1:length(IMUtime)
-    Kalman.UpdateIMU((Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))))', Accelerometer(t,:)', Magnetometer(t,:)');	% gyroscope units must be radians
+    Kalman.UpdateIMU((Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))))', (Accelerometer(t,:)-[1 1 0]*diag(mean(Accelerometer(1:100,:))))', Magnetometer(t,:)');	% gyroscope units must be radians
     IMUquaternion(t, :) = Kalman.Quaternion;
+    RPYkal(t, :) = Kalman.RPYkal;
     IMUomega(t, :) = Kalman.omehat;
     IMUbias(t, :) = Kalman.bias;
-    dalpha(t, :) = Kalman.deltaX(1:3);
+    dalpha(t, :) = Kalman.dalpha(1:3);
     ep(t,:) = Kalman.e(1:3);
 end    
 
-beta = 0.0028;
+beta = 0.026;
 % beta = 0.0002;
 zeta = 0;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta,  'Zeta', zeta);
 MADquaternion = zeros(length(IMUtime), 4);
 GYRObias = zeros(length(IMUtime), 3);
 for t = 1:length(IMUtime)
-    AHRS.UpdateIMU(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), Accelerometer(t,:));	% gyroscope units must be radians
+    AHRS.UpdateIMU(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), (Accelerometer(t,:)-[1 1 0]*diag(mean(Accelerometer(1:100,:))))');	% gyroscope units must be radians
 %     AHRS.Update(Gyroscope(t,:)-ones(1, 3)*diag(mean(Gyroscope(1:100,:))), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     MADquaternion(t, :) = AHRS.Quaternion;
 end
 
 IMUtime = (0:IMUsample:(length(Gyroscope)-1)*IMUsample)';
 
-[Y, P, R] = quat2angle([IMUquaternion(:,4) IMUquaternion(:,1) IMUquaternion(:,2) IMUquaternion(:,3)]);
-RPYkal = [R -P -Y];
-
 RPYmad = quatern2euler(MADquaternion);
 RPYmad = RPYmad *diag([-1 1 1]);
 
-OPTIeuler_f = OPTIeuler_f + 0*ones(length(OPTIeuler_f), 3)*diag([1*pi/180 -1*pi/180 0*pi/180]);
+OPTIeuler_f = OPTIeuler_f + ones(length(OPTIeuler_f), 3)*diag([0*pi/180 0*pi/180 0*pi/180]);
 
 %% Comparison
 errorKal_R = RPYkal(:,1) - OPTIeuler_f(:,1);
@@ -122,25 +123,39 @@ xlabel('[s]')
 ylabel('[deg]')
 legend('OptiTrack','Madgwick','Kalman')
 
-% figure('name', 'Angular speeds')
-% plot(IMUtime, IMUomega)
-% title('$$\hat{\omega}$$','Interpreter','latex')
-% grid minor
-% xlabel('[s]')
-% ylabel('[rad/s]')
+figure('name', 'Angular speeds')
+plot(IMUtime, IMUomega)
+title('$$\hat{\omega}$$','Interpreter','latex')
+grid minor
+xlabel('[s]')
+ylabel('[rad/s]')
 
 figure('name', 'Bias')
 plot(IMUtime, IMUbias);
 title('$$\beta$$','Interpreter','latex')
 grid minor
+legend('\beta_p', '\beta_q', '\beta_r')
 xlabel('[s]')
 ylabel('[rad/s]')
 
 figure('name', 'dalpha')
-plot(IMUtime, dalpha)
-title('$$\delta\alpha$$','Interpreter','latex')
+subplot(3,1,1)
+plot(IMUtime, dalpha(:,1))
 grid minor
 xlabel('[s]')
 ylabel('[rad]')
+legend('\delta\phi')
+subplot(3,1,2)
+plot(IMUtime, dalpha(:,2))
+grid minor
+xlabel('[s]')
+ylabel('[rad]')
+legend('\delta\theta')
+subplot(3,1,3)
+plot(IMUtime, dalpha(:,3))
+grid minor
+xlabel('[s]')
+ylabel('[rad]')
+legend('\delta\psi')
 
 %% End of code

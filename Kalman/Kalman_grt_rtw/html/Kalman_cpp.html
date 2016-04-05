@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="./js/coder_app.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="./rtwreport_utils.js"></script>
+<script type="text/javascript" src="./rtwannotate.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/coder_app.css"/>
+</head>
+<body onload="srcFileOnload();">
+<pre id="code">
+<table class="code" id="codeTbl">
+<tr name="1" id="1">
+<td>1</td><td><span class="ct">/*</span></td></tr>
+<tr name="2" id="2">
+<td>2</td><td><span class="ct"> * Kalman.cpp</span></td></tr>
+<tr name="3" id="3">
+<td>3</td><td><span class="ct"> *</span></td></tr>
+<tr name="4" id="4">
+<td>4</td><td><span class="ct"> * Academic License - for use in teaching, academic research, and meeting</span></td></tr>
+<tr name="5" id="5">
+<td>5</td><td><span class="ct"> * course requirements at degree granting institutions only.  Not for</span></td></tr>
+<tr name="6" id="6">
+<td>6</td><td><span class="ct"> * government, commercial, or other organizational use.</span></td></tr>
+<tr name="7" id="7">
+<td>7</td><td><span class="ct"> *</span></td></tr>
+<tr name="8" id="8">
+<td>8</td><td><span class="ct"> * Code generation for model "Kalman".</span></td></tr>
+<tr name="9" id="9">
+<td>9</td><td><span class="ct"> *</span></td></tr>
+<tr name="10" id="10">
+<td>10</td><td><span class="ct"> * Model version              : 1.151</span></td></tr>
+<tr name="11" id="11">
+<td>11</td><td><span class="ct"> * Simulink Coder version : 8.8.1 (R2015aSP1) 04-Sep-2015</span></td></tr>
+<tr name="12" id="12">
+<td>12</td><td><span class="ct"> * C++ source code generated on : Wed Apr 06 00:18:35 2016</span></td></tr>
+<tr name="13" id="13">
+<td>13</td><td><span class="ct"> *</span></td></tr>
+<tr name="14" id="14">
+<td>14</td><td><span class="ct"> * Target selection: grt.tlc</span></td></tr>
+<tr name="15" id="15">
+<td>15</td><td><span class="ct"> * Note: GRT includes extra infrastructure and instrumentation for prototyping</span></td></tr>
+<tr name="16" id="16">
+<td>16</td><td><span class="ct"> * Embedded hardware selection: ARM Compatible-&gt;ARM Cortex</span></td></tr>
+<tr name="17" id="17">
+<td>17</td><td><span class="ct"> * Code generation objective: Execution efficiency</span></td></tr>
+<tr name="18" id="18">
+<td>18</td><td><span class="ct"> * Validation result: Not run</span></td></tr>
+<tr name="19" id="19">
+<td>19</td><td><span class="ct"> */</span></td></tr>
+<tr name="20" id="20">
+<td>20</td><td></td></tr>
+<tr name="21" id="21">
+<td>21</td><td><span class="pp">#include "Kalman.h"</span></td></tr>
+<tr name="22" id="22">
+<td>22</td><td><span class="pp">#include "Kalman_private.h"</span></td></tr>
+<tr name="23" id="23">
+<td>23</td><td></td></tr>
+<tr name="24" id="24">
+<td>24</td><td><span class="ct">/* Function for MATLAB Function: '&lt;Root&gt;/Update' */</span></td></tr>
+<tr name="25" id="25">
+<td>25</td><td><span class="kw">void</span> <a id="25c6" class="tk">KalmanModelClass</a>::<a id="25c24" class="tk">Kalman_mrdivide</a>(<span class="kw">const</span> <a id="25c46" class="tk">real_T</a> <a id="25c53" class="tk">A</a>[18], <span class="kw">const</span> <a id="25c66" class="tk">real_T</a> <a id="25c73" class="tk">B</a>[9],</td></tr>
+<tr name="26" id="26">
+<td>26</td><td>  <a id="26c3" class="tk">real_T</a> <a id="26c10" class="tk">y</a>[18])</td></tr>
+<tr name="27" id="27">
+<td>27</td><td><span class="br">{</span></td></tr>
+<tr name="28" id="28">
+<td>28</td><td>  <a id="28c3" class="tk">real_T</a> <a id="28c10" class="tk">b_A</a>[9];</td></tr>
+<tr name="29" id="29">
+<td>29</td><td>  <a id="29c3" class="tk">int32_T</a> <a id="29c11" class="tk">r1</a>;</td></tr>
+<tr name="30" id="30">
+<td>30</td><td>  <a id="30c3" class="tk">int32_T</a> <a id="30c11" class="tk">r2</a>;</td></tr>
+<tr name="31" id="31">
+<td>31</td><td>  <a id="31c3" class="tk">int32_T</a> <a id="31c11" class="tk">r3</a>;</td></tr>
+<tr name="32" id="32">
+<td>32</td><td>  <a id="32c3" class="tk">real_T</a> <a id="32c10" class="tk">maxval</a>;</td></tr>
+<tr name="33" id="33">
+<td>33</td><td>  <a id="33c3" class="tk">real_T</a> <a id="33c10" class="tk">a21</a>;</td></tr>
+<tr name="34" id="34">
+<td>34</td><td>  <a id="34c3" class="tk">int32_T</a> <a id="34c11" class="tk">rtemp</a>;</td></tr>
+<tr name="35" id="35">
+<td>35</td><td>  <a id="35c3" class="tk">memcpy</a>(&amp;<a id="35c11" class="tk">b_A</a>[0], &amp;<a id="35c20" class="tk">B</a>[0], 9U * <span class="kw">sizeof</span>(<a id="35c38" class="tk">real_T</a>));</td></tr>
+<tr name="36" id="36">
+<td>36</td><td>  <a id="36c3" class="tk">r1</a> = 0;</td></tr>
+<tr name="37" id="37">
+<td>37</td><td>  <a id="37c3" class="tk">r2</a> = 1;</td></tr>
+<tr name="38" id="38">
+<td>38</td><td>  <a id="38c3" class="tk">r3</a> = 2;</td></tr>
+<tr name="39" id="39">
+<td>39</td><td>  <a id="39c3" class="tk">maxval</a> = <a id="39c12" class="tk">fabs</a>(<a id="39c17" class="tk">B</a>[0]);</td></tr>
+<tr name="40" id="40">
+<td>40</td><td>  <a id="40c3" class="tk">a21</a> = <a id="40c9" class="tk">fabs</a>(<a id="40c14" class="tk">B</a>[1]);</td></tr>
+<tr name="41" id="41">
+<td>41</td><td>  <span class="kw">if</span> (<a id="41c7" class="tk">a21</a> &gt; <a id="41c13" class="tk">maxval</a>) <span class="br">{</span></td></tr>
+<tr name="42" id="42">
+<td>42</td><td>    <a id="42c5" class="tk">maxval</a> = <a id="42c14" class="tk">a21</a>;</td></tr>
+<tr name="43" id="43">
+<td>43</td><td>    <a id="43c5" class="tk">r1</a> = 1;</td></tr>
+<tr name="44" id="44">
+<td>44</td><td>    <a id="44c5" class="tk">r2</a> = 0;</td></tr>
+<tr name="45" id="45">
+<td>45</td><td>  <span class="br">}</span></td></tr>
+<tr name="46" id="46">
+<td>46</td><td></td></tr>
+<tr name="47" id="47">
+<td>47</td><td>  <span class="kw">if</span> (<a id="47c7" class="tk">fabs</a>(<a id="47c12" class="tk">B</a>[2]) &gt; <a id="47c20" class="tk">maxval</a>) <span class="br">{</span></td></tr>
+<tr name="48" id="48">
+<td>48</td><td>    <a id="48c5" class="tk">r1</a> = 2;</td></tr>
+<tr name="49" id="49">
+<td>49</td><td>    <a id="49c5" class="tk">r2</a> = 1;</td></tr>
+<tr name="50" id="50">
+<td>50</td><td>    <a id="50c5" class="tk">r3</a> = 0;</td></tr>
+<tr name="51" id="51">
+<td>51</td><td>  <span class="br">}</span></td></tr>
+<tr name="52" id="52">
+<td>52</td><td></td></tr>
+<tr name="53" id="53">
+<td>53</td><td>  <a id="53c3" class="tk">b_A</a>[<a id="53c7" class="tk">r2</a>] = <a id="53c13" class="tk">B</a>[<a id="53c15" class="tk">r2</a>] / <a id="53c21" class="tk">B</a>[<a id="53c23" class="tk">r1</a>];</td></tr>
+<tr name="54" id="54">
+<td>54</td><td>  <a id="54c3" class="tk">b_A</a>[<a id="54c7" class="tk">r3</a>] /= <a id="54c14" class="tk">b_A</a>[<a id="54c18" class="tk">r1</a>];</td></tr>
+<tr name="55" id="55">
+<td>55</td><td>  <a id="55c3" class="tk">b_A</a>[3 + <a id="55c11" class="tk">r2</a>] -= <a id="55c18" class="tk">b_A</a>[3 + <a id="55c26" class="tk">r1</a>] * <a id="55c32" class="tk">b_A</a>[<a id="55c36" class="tk">r2</a>];</td></tr>
+<tr name="56" id="56">
+<td>56</td><td>  <a id="56c3" class="tk">b_A</a>[3 + <a id="56c11" class="tk">r3</a>] -= <a id="56c18" class="tk">b_A</a>[3 + <a id="56c26" class="tk">r1</a>] * <a id="56c32" class="tk">b_A</a>[<a id="56c36" class="tk">r3</a>];</td></tr>
+<tr name="57" id="57">
+<td>57</td><td>  <a id="57c3" class="tk">b_A</a>[6 + <a id="57c11" class="tk">r2</a>] -= <a id="57c18" class="tk">b_A</a>[6 + <a id="57c26" class="tk">r1</a>] * <a id="57c32" class="tk">b_A</a>[<a id="57c36" class="tk">r2</a>];</td></tr>
+<tr name="58" id="58">
+<td>58</td><td>  <a id="58c3" class="tk">b_A</a>[6 + <a id="58c11" class="tk">r3</a>] -= <a id="58c18" class="tk">b_A</a>[6 + <a id="58c26" class="tk">r1</a>] * <a id="58c32" class="tk">b_A</a>[<a id="58c36" class="tk">r3</a>];</td></tr>
+<tr name="59" id="59">
+<td>59</td><td>  <span class="kw">if</span> (<a id="59c7" class="tk">fabs</a>(<a id="59c12" class="tk">b_A</a>[3 + <a id="59c20" class="tk">r3</a>]) &gt; <a id="59c27" class="tk">fabs</a>(<a id="59c32" class="tk">b_A</a>[3 + <a id="59c40" class="tk">r2</a>])) <span class="br">{</span></td></tr>
+<tr name="60" id="60">
+<td>60</td><td>    <a id="60c5" class="tk">rtemp</a> = <a id="60c13" class="tk">r2</a>;</td></tr>
+<tr name="61" id="61">
+<td>61</td><td>    <a id="61c5" class="tk">r2</a> = <a id="61c10" class="tk">r3</a>;</td></tr>
+<tr name="62" id="62">
+<td>62</td><td>    <a id="62c5" class="tk">r3</a> = <a id="62c10" class="tk">rtemp</a>;</td></tr>
+<tr name="63" id="63">
+<td>63</td><td>  <span class="br">}</span></td></tr>
+<tr name="64" id="64">
+<td>64</td><td></td></tr>
+<tr name="65" id="65">
+<td>65</td><td>  <a id="65c3" class="tk">b_A</a>[3 + <a id="65c11" class="tk">r3</a>] /= <a id="65c18" class="tk">b_A</a>[3 + <a id="65c26" class="tk">r2</a>];</td></tr>
+<tr name="66" id="66">
+<td>66</td><td>  <a id="66c3" class="tk">b_A</a>[6 + <a id="66c11" class="tk">r3</a>] -= <a id="66c18" class="tk">b_A</a>[3 + <a id="66c26" class="tk">r3</a>] * <a id="66c32" class="tk">b_A</a>[6 + <a id="66c40" class="tk">r2</a>];</td></tr>
+<tr name="67" id="67">
+<td>67</td><td>  <span class="kw">for</span> (<a id="67c8" class="tk">rtemp</a> = 0; <a id="67c19" class="tk">rtemp</a> &lt; 6; <a id="67c30" class="tk">rtemp</a>++) <span class="br">{</span></td></tr>
+<tr name="68" id="68">
+<td>68</td><td>    <a id="68c5" class="tk">y</a>[<a id="68c7" class="tk">rtemp</a> + 6 * <a id="68c19" class="tk">r1</a>] = <a id="68c25" class="tk">A</a>[<a id="68c27" class="tk">rtemp</a>] / <a id="68c36" class="tk">b_A</a>[<a id="68c40" class="tk">r1</a>];</td></tr>
+<tr name="69" id="69">
+<td>69</td><td>    <a id="69c5" class="tk">y</a>[<a id="69c7" class="tk">rtemp</a> + 6 * <a id="69c19" class="tk">r2</a>] = <a id="69c25" class="tk">A</a>[6 + <a id="69c31" class="tk">rtemp</a>] - <a id="69c40" class="tk">y</a>[6 * <a id="69c46" class="tk">r1</a> + <a id="69c51" class="tk">rtemp</a>] * <a id="69c60" class="tk">b_A</a>[3 + <a id="69c68" class="tk">r1</a>];</td></tr>
+<tr name="70" id="70">
+<td>70</td><td>    <a id="70c5" class="tk">y</a>[<a id="70c7" class="tk">rtemp</a> + 6 * <a id="70c19" class="tk">r3</a>] = <a id="70c25" class="tk">A</a>[12 + <a id="70c32" class="tk">rtemp</a>] - <a id="70c41" class="tk">y</a>[6 * <a id="70c47" class="tk">r1</a> + <a id="70c52" class="tk">rtemp</a>] * <a id="70c61" class="tk">b_A</a>[6 + <a id="70c69" class="tk">r1</a>];</td></tr>
+<tr name="71" id="71">
+<td>71</td><td>    <a id="71c5" class="tk">y</a>[<a id="71c7" class="tk">rtemp</a> + 6 * <a id="71c19" class="tk">r2</a>] /= <a id="71c26" class="tk">b_A</a>[3 + <a id="71c34" class="tk">r2</a>];</td></tr>
+<tr name="72" id="72">
+<td>72</td><td>    <a id="72c5" class="tk">y</a>[<a id="72c7" class="tk">rtemp</a> + 6 * <a id="72c19" class="tk">r3</a>] -= <a id="72c26" class="tk">y</a>[6 * <a id="72c32" class="tk">r2</a> + <a id="72c37" class="tk">rtemp</a>] * <a id="72c46" class="tk">b_A</a>[6 + <a id="72c54" class="tk">r2</a>];</td></tr>
+<tr name="73" id="73">
+<td>73</td><td>    <a id="73c5" class="tk">y</a>[<a id="73c7" class="tk">rtemp</a> + 6 * <a id="73c19" class="tk">r3</a>] /= <a id="73c26" class="tk">b_A</a>[6 + <a id="73c34" class="tk">r3</a>];</td></tr>
+<tr name="74" id="74">
+<td>74</td><td>    <a id="74c5" class="tk">y</a>[<a id="74c7" class="tk">rtemp</a> + 6 * <a id="74c19" class="tk">r2</a>] -= <a id="74c26" class="tk">y</a>[6 * <a id="74c32" class="tk">r3</a> + <a id="74c37" class="tk">rtemp</a>] * <a id="74c46" class="tk">b_A</a>[3 + <a id="74c54" class="tk">r3</a>];</td></tr>
+<tr name="75" id="75">
+<td>75</td><td>    <a id="75c5" class="tk">y</a>[<a id="75c7" class="tk">rtemp</a> + 6 * <a id="75c19" class="tk">r1</a>] -= <a id="75c26" class="tk">y</a>[6 * <a id="75c32" class="tk">r3</a> + <a id="75c37" class="tk">rtemp</a>] * <a id="75c46" class="tk">b_A</a>[<a id="75c50" class="tk">r3</a>];</td></tr>
+<tr name="76" id="76">
+<td>76</td><td>    <a id="76c5" class="tk">y</a>[<a id="76c7" class="tk">rtemp</a> + 6 * <a id="76c19" class="tk">r1</a>] -= <a id="76c26" class="tk">y</a>[6 * <a id="76c32" class="tk">r2</a> + <a id="76c37" class="tk">rtemp</a>] * <a id="76c46" class="tk">b_A</a>[<a id="76c50" class="tk">r2</a>];</td></tr>
+<tr name="77" id="77">
+<td>77</td><td>  <span class="br">}</span></td></tr>
+<tr name="78" id="78">
+<td>78</td><td><span class="br">}</span></td></tr>
+<tr name="79" id="79">
+<td>79</td><td></td></tr>
+<tr name="80" id="80">
+<td>80</td><td><span class="ct">/* Model step function */</span></td></tr>
+<tr name="81" id="81">
+<td>81</td><td><span class="kw">void</span> <a id="81c6" class="tk">KalmanModelClass</a>::<a id="81c24" class="tk">step</a>()</td></tr>
+<tr name="82" id="82">
+<td>82</td><td><span class="br">{</span></td></tr>
+<tr name="83" id="83">
+<td>83</td><td>  <a id="83c3" class="tk">int8_T</a> <a id="83c10" class="tk">I</a>[16];</td></tr>
+<tr name="84" id="84">
+<td>84</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="84c16" class="tk">real_T</a> <a id="84c23" class="tk">y</a>[36] = <span class="br">{</span> 1.6354441633333335E-12, 0.0, 0.0,</td></tr>
+<tr name="85" id="85">
+<td>85</td><td>    -9.5316624499999987E-11, 0.0, 0.0, 0.0, 1.4072293633333337E-12, 0.0, 0.0,</td></tr>
+<tr name="86" id="86">
+<td>86</td><td>    -6.10844045E-11, 0.0, 0.0, 0.0, 2.5000000001358222E-5, 0.0, 0.0,</td></tr>
+<tr name="87" id="87">
+<td>87</td><td>    -2.0373259445000002E-13, -9.5316624499999987E-11, 0.0, 0.0, 1.90633249E-8,</td></tr>
+<tr name="88" id="88">
+<td>88</td><td>    0.0, 0.0, 0.0, -6.10844045E-11, 0.0, 0.0, 1.2216880900000001E-8, 0.0, 0.0,</td></tr>
+<tr name="89" id="89">
+<td>89</td><td>    0.0, -2.0373259445000002E-13, 0.0, 0.0, 4.074651889E-11 <span class="br">}</span>;</td></tr>
+<tr name="90" id="90">
+<td>90</td><td></td></tr>
+<tr name="91" id="91">
+<td>91</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="91c16" class="tk">real_T</a> <a id="91c23" class="tk">b</a>[36] = <span class="br">{</span> 1.0, 0.0, 0.0, -0.01, -0.0, -0.0, 0.0, 1.0, 0.0,</td></tr>
+<tr name="92" id="92">
+<td>92</td><td>    -0.0, -0.01, -0.0, 0.0, 0.0, 1.0, -0.0, -0.0, -0.01, 0.0, 0.0, 0.0, 1.0, 0.0,</td></tr>
+<tr name="93" id="93">
+<td>93</td><td>    0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 <span class="br">}</span>;</td></tr>
+<tr name="94" id="94">
+<td>94</td><td></td></tr>
+<tr name="95" id="95">
+<td>95</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="95c16" class="tk">real_T</a> <a id="95c23" class="tk">a</a>[36] = <span class="br">{</span> 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,</td></tr>
+<tr name="96" id="96">
+<td>96</td><td>    0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -0.01, -0.0, -0.0, 1.0, 0.0, 0.0,</td></tr>
+<tr name="97" id="97">
+<td>97</td><td>    -0.0, -0.01, -0.0, 0.0, 1.0, 0.0, -0.0, -0.0, -0.01, 0.0, 0.0, 1.0 <span class="br">}</span>;</td></tr>
+<tr name="98" id="98">
+<td>98</td><td></td></tr>
+<tr name="99" id="99">
+<td>99</td><td>  <a id="99c3" class="tk">real_T</a> <a id="99c10" class="tk">Pkp</a>[36];</td></tr>
+<tr name="100" id="100">
+<td>100</td><td>  <a id="100c3" class="tk">real_T</a> <a id="100c10" class="tk">Magnetometer</a>[3];</td></tr>
+<tr name="101" id="101">
+<td>101</td><td>  <a id="101c3" class="tk">real_T</a> <a id="101c10" class="tk">Aqkm</a>[9];</td></tr>
+<tr name="102" id="102">
+<td>102</td><td>  <a id="102c3" class="tk">real_T</a> <a id="102c10" class="tk">Aqmr</a>[3];</td></tr>
+<tr name="103" id="103">
+<td>103</td><td>  <a id="103c3" class="tk">real_T</a> <a id="103c10" class="tk">Hk</a>[18];</td></tr>
+<tr name="104" id="104">
+<td>104</td><td>  <a id="104c3" class="tk">real_T</a> <a id="104c10" class="tk">Kk</a>[18];</td></tr>
+<tr name="105" id="105">
+<td>105</td><td>  <a id="105c3" class="tk">real_T</a> <a id="105c10" class="tk">deltaXkp</a>[6];</td></tr>
+<tr name="106" id="106">
+<td>106</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="106c16" class="tk">real_T</a> <a id="106c23" class="tk">R</a>[9] = <span class="br">{</span> 259.21322001000004, 0.0, 0.0, 0.0,</td></tr>
+<tr name="107" id="107">
+<td>107</td><td>    106.39097316000002, 0.0, 0.0, 0.0, 454.38038244000006 <span class="br">}</span>;</td></tr>
+<tr name="108" id="108">
+<td>108</td><td></td></tr>
+<tr name="109" id="109">
+<td>109</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="109c16" class="tk">real_T</a> <a id="109c23" class="tk">b_R</a>[9] = <span class="br">{</span> 0.5993546724, 0.0, 0.0, 0.0,</td></tr>
+<tr name="110" id="110">
+<td>110</td><td>    0.44804280959999992, 0.0, 0.0, 0.0, 0.5110105225 <span class="br">}</span>;</td></tr>
+<tr name="111" id="111">
+<td>111</td><td></td></tr>
+<tr name="112" id="112">
+<td>112</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="112c16" class="tk">int8_T</a> <a id="112c23" class="tk">b_b</a>[9] = <span class="br">{</span> 1, 0, 0, 0, 1, 0, 0, 0, 1 <span class="br">}</span>;</td></tr>
+<tr name="113" id="113">
+<td>113</td><td></td></tr>
+<tr name="114" id="114">
+<td>114</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="114c16" class="tk">int8_T</a> <a id="114c23" class="tk">I6</a>[36] = <span class="br">{</span> 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0,</td></tr>
+<tr name="115" id="115">
+<td>115</td><td>    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1 <span class="br">}</span>;</td></tr>
+<tr name="116" id="116">
+<td>116</td><td></td></tr>
+<tr name="117" id="117">
+<td>117</td><td>  <a id="117c3" class="tk">real_T</a> <a id="117c10" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[3];</td></tr>
+<tr name="118" id="118">
+<td>118</td><td>  <a id="118c3" class="tk">real_T</a> <a id="118c10" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[3];</td></tr>
+<tr name="119" id="119">
+<td>119</td><td>  <a id="119c3" class="tk">real_T</a> <a id="119c10" class="tk">rtb_qkm</a>[4];</td></tr>
+<tr name="120" id="120">
+<td>120</td><td>  <a id="120c3" class="tk">real_T</a> <a id="120c10" class="tk">rtb_Pkm</a>[36];</td></tr>
+<tr name="121" id="121">
+<td>121</td><td>  <a id="121c3" class="tk">real_T</a> <a id="121c10" class="tk">rtb_Pkm_0</a>[18];</td></tr>
+<tr name="122" id="122">
+<td>122</td><td>  <a id="122c3" class="tk">int32_T</a> <a id="122c11" class="tk">i</a>;</td></tr>
+<tr name="123" id="123">
+<td>123</td><td>  <a id="123c3" class="tk">real_T</a> <a id="123c10" class="tk">tmp</a>[16];</td></tr>
+<tr name="124" id="124">
+<td>124</td><td>  <a id="124c3" class="tk">real_T</a> <a id="124c10" class="tk">I_0</a>[16];</td></tr>
+<tr name="125" id="125">
+<td>125</td><td>  <a id="125c3" class="tk">real_T</a> <a id="125c10" class="tk">a_0</a>[36];</td></tr>
+<tr name="126" id="126">
+<td>126</td><td>  <a id="126c3" class="tk">real_T</a> <a id="126c10" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[9];</td></tr>
+<tr name="127" id="127">
+<td>127</td><td>  <a id="127c3" class="tk">real_T</a> <a id="127c10" class="tk">tmp_0</a>[9];</td></tr>
+<tr name="128" id="128">
+<td>128</td><td>  <a id="128c3" class="tk">real_T</a> <a id="128c10" class="tk">I6_0</a>[36];</td></tr>
+<tr name="129" id="129">
+<td>129</td><td>  <a id="129c3" class="tk">real_T</a> <a id="129c10" class="tk">Magnetometer_0</a>[3];</td></tr>
+<tr name="130" id="130">
+<td>130</td><td>  <a id="130c3" class="tk">int32_T</a> <a id="130c11" class="tk">i_0</a>;</td></tr>
+<tr name="131" id="131">
+<td>131</td><td>  <a id="131c3" class="tk">int32_T</a> <a id="131c11" class="tk">i_1</a>;</td></tr>
+<tr name="132" id="132">
+<td>132</td><td>  <a id="132c3" class="tk">real_T</a> <a id="132c10" class="tk">rtb_qkm_p</a>;</td></tr>
+<tr name="133" id="133">
+<td>133</td><td>  <a id="133c3" class="tk">real_T</a> <a id="133c10" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="134" id="134">
+<td>134</td><td>  <a id="134c3" class="tk">real_T</a> <a id="134c10" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="135" id="135">
+<td>135</td><td>  <a id="135c3" class="tk">real_T</a> <a id="135c10" class="tk">dq_idx_0</a>;</td></tr>
+<tr name="136" id="136">
+<td>136</td><td>  <a id="136c3" class="tk">real_T</a> <a id="136c10" class="tk">dq_idx_1</a>;</td></tr>
+<tr name="137" id="137">
+<td>137</td><td>  <a id="137c3" class="tk">real_T</a> <a id="137c10" class="tk">dq_idx_2</a>;</td></tr>
+<tr name="138" id="138">
+<td>138</td><td>  <a id="138c3" class="tk">real_T</a> <a id="138c10" class="tk">rtb_qkp_idx_1</a>;</td></tr>
+<tr name="139" id="139">
+<td>139</td><td>  <a id="139c3" class="tk">real_T</a> <a id="139c10" class="tk">rtb_qkp_idx_2</a>;</td></tr>
+<tr name="140" id="140">
+<td>140</td><td></td></tr>
+<tr name="141" id="141">
+<td>141</td><td>  <span class="ct">/* MATLAB Function: '&lt;Root&gt;/Propagation ' incorporates:</span></td></tr>
+<tr name="142" id="142">
+<td>142</td><td><span class="ct">   *  UnitDelay: '&lt;Root&gt;/Unit Delay'</span></td></tr>
+<tr name="143" id="143">
+<td>143</td><td><span class="ct">   *  UnitDelay: '&lt;Root&gt;/Unit Delay1'</span></td></tr>
+<tr name="144" id="144">
+<td>144</td><td><span class="ct">   *  UnitDelay: '&lt;Root&gt;/Unit Delay2'</span></td></tr>
+<tr name="145" id="145">
+<td>145</td><td><span class="ct">   */</span></td></tr>
+<tr name="146" id="146">
+<td>146</td><td>  <span class="ct">/* MATLAB Function 'Propagation ': '&lt;S1&gt;:1' */</span></td></tr>
+<tr name="147" id="147">
+<td>147</td><td>  <span class="ct">/* % EKF - Propagation      % */</span></td></tr>
+<tr name="148" id="148">
+<td>148</td><td>  <span class="ct">/*  Author: Mattia Giurato  % */</span></td></tr>
+<tr name="149" id="149">
+<td>149</td><td>  <span class="ct">/*  Last review: 2016/03/15 % */</span></td></tr>
+<tr name="150" id="150">
+<td>150</td><td>  <span class="ct">/* %%%%%%%%%%%%%%%%%%%%%%%%%% */</span></td></tr>
+<tr name="151" id="151">
+<td>151</td><td>  <span class="ct">/* % Usefull values */</span></td></tr>
+<tr name="152" id="152">
+<td>152</td><td>  <span class="ct">/* % Quaternion propagation */</span></td></tr>
+<tr name="153" id="153">
+<td>153</td><td>  <span class="ct">/* '&lt;S1&gt;:1:14' */</span></td></tr>
+<tr name="154" id="154">
+<td>154</td><td>  <span class="ct">/* '&lt;S1&gt;:1:17' */</span></td></tr>
+<tr name="155" id="155">
+<td>155</td><td>  <span class="ct">/* '&lt;S1&gt;:1:19' */</span></td></tr>
+<tr name="156" id="156">
+<td>156</td><td>  <span class="kw">for</span> (<a id="156c8" class="tk">i</a> = 0; <a id="156c15" class="tk">i</a> &lt; 16; <a id="156c23" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="157" id="157">
+<td>157</td><td>    <a id="157c5" class="tk">I</a>[<a id="157c7" class="tk">i</a>] = 0;</td></tr>
+<tr name="158" id="158">
+<td>158</td><td>  <span class="br">}</span></td></tr>
+<tr name="159" id="159">
+<td>159</td><td></td></tr>
+<tr name="160" id="160">
+<td>160</td><td>  <a id="160c3" class="tk">I</a>[0] = 1;</td></tr>
+<tr name="161" id="161">
+<td>161</td><td>  <a id="161c3" class="tk">I</a>[5] = 1;</td></tr>
+<tr name="162" id="162">
+<td>162</td><td>  <a id="162c3" class="tk">I</a>[10] = 1;</td></tr>
+<tr name="163" id="163">
+<td>163</td><td>  <a id="163c3" class="tk">I</a>[15] = 1;</td></tr>
+<tr name="164" id="164">
+<td>164</td><td>  <a id="164c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[0] = 0.0;</td></tr>
+<tr name="165" id="165">
+<td>165</td><td>  <a id="165c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3] = -<a id="165c41" class="tk">Kalman_DW</a>.<a id="165c51" class="tk">UnitDelay1_DSTATE</a>[2];</td></tr>
+<tr name="166" id="166">
+<td>166</td><td>  <a id="166c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[6] = <a id="166c40" class="tk">Kalman_DW</a>.<a id="166c50" class="tk">UnitDelay1_DSTATE</a>[1];</td></tr>
+<tr name="167" id="167">
+<td>167</td><td>  <a id="167c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[1] = <a id="167c40" class="tk">Kalman_DW</a>.<a id="167c50" class="tk">UnitDelay1_DSTATE</a>[2];</td></tr>
+<tr name="168" id="168">
+<td>168</td><td>  <a id="168c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[4] = 0.0;</td></tr>
+<tr name="169" id="169">
+<td>169</td><td>  <a id="169c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[7] = -<a id="169c41" class="tk">Kalman_DW</a>.<a id="169c51" class="tk">UnitDelay1_DSTATE</a>[0];</td></tr>
+<tr name="170" id="170">
+<td>170</td><td>  <a id="170c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[2] = -<a id="170c41" class="tk">Kalman_DW</a>.<a id="170c51" class="tk">UnitDelay1_DSTATE</a>[1];</td></tr>
+<tr name="171" id="171">
+<td>171</td><td>  <a id="171c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[5] = <a id="171c40" class="tk">Kalman_DW</a>.<a id="171c50" class="tk">UnitDelay1_DSTATE</a>[0];</td></tr>
+<tr name="172" id="172">
+<td>172</td><td>  <a id="172c3" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[8] = 0.0;</td></tr>
+<tr name="173" id="173">
+<td>173</td><td>  <span class="kw">for</span> (<a id="173c8" class="tk">i</a> = 0; <a id="173c15" class="tk">i</a> &lt; 3; <a id="173c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="174" id="174">
+<td>174</td><td>    <a id="174c5" class="tk">tmp</a>[<a id="174c9" class="tk">i</a> &lt;&lt; 2] = -<a id="174c20" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3 * <a id="174c56" class="tk">i</a>];</td></tr>
+<tr name="175" id="175">
+<td>175</td><td>    <a id="175c5" class="tk">tmp</a>[1 + (<a id="175c14" class="tk">i</a> &lt;&lt; 2)] = -<a id="175c26" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3 * <a id="175c62" class="tk">i</a> + 1];</td></tr>
+<tr name="176" id="176">
+<td>176</td><td>    <a id="176c5" class="tk">tmp</a>[2 + (<a id="176c14" class="tk">i</a> &lt;&lt; 2)] = -<a id="176c26" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3 * <a id="176c62" class="tk">i</a> + 2];</td></tr>
+<tr name="177" id="177">
+<td>177</td><td>  <span class="br">}</span></td></tr>
+<tr name="178" id="178">
+<td>178</td><td></td></tr>
+<tr name="179" id="179">
+<td>179</td><td>  <a id="179c3" class="tk">tmp</a>[12] = <a id="179c13" class="tk">Kalman_DW</a>.<a id="179c23" class="tk">UnitDelay1_DSTATE</a>[0];</td></tr>
+<tr name="180" id="180">
+<td>180</td><td>  <a id="180c3" class="tk">tmp</a>[13] = <a id="180c13" class="tk">Kalman_DW</a>.<a id="180c23" class="tk">UnitDelay1_DSTATE</a>[1];</td></tr>
+<tr name="181" id="181">
+<td>181</td><td>  <a id="181c3" class="tk">tmp</a>[14] = <a id="181c13" class="tk">Kalman_DW</a>.<a id="181c23" class="tk">UnitDelay1_DSTATE</a>[2];</td></tr>
+<tr name="182" id="182">
+<td>182</td><td>  <a id="182c3" class="tk">tmp</a>[3] = -<a id="182c13" class="tk">Kalman_DW</a>.<a id="182c23" class="tk">UnitDelay1_DSTATE</a>[0];</td></tr>
+<tr name="183" id="183">
+<td>183</td><td>  <a id="183c3" class="tk">tmp</a>[7] = -<a id="183c13" class="tk">Kalman_DW</a>.<a id="183c23" class="tk">UnitDelay1_DSTATE</a>[1];</td></tr>
+<tr name="184" id="184">
+<td>184</td><td>  <a id="184c3" class="tk">tmp</a>[11] = -<a id="184c14" class="tk">Kalman_DW</a>.<a id="184c24" class="tk">UnitDelay1_DSTATE</a>[2];</td></tr>
+<tr name="185" id="185">
+<td>185</td><td>  <a id="185c3" class="tk">tmp</a>[15] = 0.0;</td></tr>
+<tr name="186" id="186">
+<td>186</td><td>  <span class="kw">for</span> (<a id="186c8" class="tk">i</a> = 0; <a id="186c15" class="tk">i</a> &lt; 4; <a id="186c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="187" id="187">
+<td>187</td><td>    <a id="187c5" class="tk">I_0</a>[<a id="187c9" class="tk">i</a> &lt;&lt; 2] = <a id="187c19" class="tk">tmp</a>[<a id="187c23" class="tk">i</a> &lt;&lt; 2] * 0.5 * 0.01 + (<a id="187c47" class="tk">real_T</a>)<a id="187c54" class="tk">I</a>[<a id="187c56" class="tk">i</a> &lt;&lt; 2];</td></tr>
+<tr name="188" id="188">
+<td>188</td><td>    <a id="188c5" class="tk">I_0</a>[1 + (<a id="188c14" class="tk">i</a> &lt;&lt; 2)] = <a id="188c25" class="tk">tmp</a>[(<a id="188c30" class="tk">i</a> &lt;&lt; 2) + 1] * 0.5 * 0.01 + (<a id="188c59" class="tk">real_T</a>)<a id="188c66" class="tk">I</a>[(<a id="188c69" class="tk">i</a> &lt;&lt; 2) + 1];</td></tr>
+<tr name="189" id="189">
+<td>189</td><td>    <a id="189c5" class="tk">I_0</a>[2 + (<a id="189c14" class="tk">i</a> &lt;&lt; 2)] = <a id="189c25" class="tk">tmp</a>[(<a id="189c30" class="tk">i</a> &lt;&lt; 2) + 2] * 0.5 * 0.01 + (<a id="189c59" class="tk">real_T</a>)<a id="189c66" class="tk">I</a>[(<a id="189c69" class="tk">i</a> &lt;&lt; 2) + 2];</td></tr>
+<tr name="190" id="190">
+<td>190</td><td>    <a id="190c5" class="tk">I_0</a>[3 + (<a id="190c14" class="tk">i</a> &lt;&lt; 2)] = <a id="190c25" class="tk">tmp</a>[(<a id="190c30" class="tk">i</a> &lt;&lt; 2) + 3] * 0.5 * 0.01 + (<a id="190c59" class="tk">real_T</a>)<a id="190c66" class="tk">I</a>[(<a id="190c69" class="tk">i</a> &lt;&lt; 2) + 3];</td></tr>
+<tr name="191" id="191">
+<td>191</td><td>  <span class="br">}</span></td></tr>
+<tr name="192" id="192">
+<td>192</td><td></td></tr>
+<tr name="193" id="193">
+<td>193</td><td>  <span class="kw">for</span> (<a id="193c8" class="tk">i</a> = 0; <a id="193c15" class="tk">i</a> &lt; 4; <a id="193c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="194" id="194">
+<td>194</td><td>    <a id="194c5" class="tk">rtb_qkm_p</a> = <a id="194c17" class="tk">I_0</a>[<a id="194c21" class="tk">i</a> + 12] * <a id="194c31" class="tk">Kalman_DW</a>.<a id="194c41" class="tk">UnitDelay2_DSTATE</a>[3] + (<a id="194c65" class="tk">I_0</a>[<a id="194c69" class="tk">i</a> + 8] *</td></tr>
+<tr name="195" id="195">
+<td>195</td><td>      <a id="195c7" class="tk">Kalman_DW</a>.<a id="195c17" class="tk">UnitDelay2_DSTATE</a>[2] + (<a id="195c41" class="tk">I_0</a>[<a id="195c45" class="tk">i</a> + 4] *</td></tr>
+<tr name="196" id="196">
+<td>196</td><td>      <a id="196c7" class="tk">Kalman_DW</a>.<a id="196c17" class="tk">UnitDelay2_DSTATE</a>[1] + <a id="196c40" class="tk">I_0</a>[<a id="196c44" class="tk">i</a>] * <a id="196c49" class="tk">Kalman_DW</a>.<a id="196c59" class="tk">UnitDelay2_DSTATE</a>[0]));</td></tr>
+<tr name="197" id="197">
+<td>197</td><td>    <a id="197c5" class="tk">rtb_qkm</a>[<a id="197c13" class="tk">i</a>] = <a id="197c18" class="tk">rtb_qkm_p</a>;</td></tr>
+<tr name="198" id="198">
+<td>198</td><td>  <span class="br">}</span></td></tr>
+<tr name="199" id="199">
+<td>199</td><td></td></tr>
+<tr name="200" id="200">
+<td>200</td><td>  <span class="ct">/* '&lt;S1&gt;:1:20' */</span></td></tr>
+<tr name="201" id="201">
+<td>201</td><td>  <a id="201c3" class="tk">rtb_qkp_idx_0</a> = <a id="201c19" class="tk">sqrt</a>(((<a id="201c26" class="tk">rtb_qkm</a>[0] * <a id="201c39" class="tk">rtb_qkm</a>[0] + <a id="201c52" class="tk">rtb_qkm</a>[1] * <a id="201c65" class="tk">rtb_qkm</a>[1]) +</td></tr>
+<tr name="202" id="202">
+<td>202</td><td>                        <a id="202c25" class="tk">rtb_qkm</a>[2] * <a id="202c38" class="tk">rtb_qkm</a>[2]) + <a id="202c52" class="tk">rtb_qkm</a>[3] * <a id="202c65" class="tk">rtb_qkm</a>[3]);</td></tr>
+<tr name="203" id="203">
+<td>203</td><td>  <a id="203c3" class="tk">rtb_qkm</a>[0] /= <a id="203c17" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="204" id="204">
+<td>204</td><td>  <a id="204c3" class="tk">rtb_qkm</a>[1] /= <a id="204c17" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="205" id="205">
+<td>205</td><td>  <a id="205c3" class="tk">rtb_qkm</a>[2] /= <a id="205c17" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="206" id="206">
+<td>206</td><td>  <a id="206c3" class="tk">rtb_qkm_p</a> = <a id="206c15" class="tk">rtb_qkm</a>[3] / <a id="206c28" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="207" id="207">
+<td>207</td><td></td></tr>
+<tr name="208" id="208">
+<td>208</td><td>  <span class="ct">/* % Bias propagation */</span></td></tr>
+<tr name="209" id="209">
+<td>209</td><td>  <span class="ct">/* '&lt;S1&gt;:1:23' */</span></td></tr>
+<tr name="210" id="210">
+<td>210</td><td>  <span class="ct">/* % Covariance equation propagation */</span></td></tr>
+<tr name="211" id="211">
+<td>211</td><td>  <span class="ct">/*  omekhatx = [     0      -omehat(3)  omehat(2) ; */</span></td></tr>
+<tr name="212" id="212">
+<td>212</td><td>  <span class="ct">/*               omehat(3)     0       -omehat(1) ; */</span></td></tr>
+<tr name="213" id="213">
+<td>213</td><td>  <span class="ct">/*              -omehat(2)  omehat(1)      0     ]; */</span></td></tr>
+<tr name="214" id="214">
+<td>214</td><td>  <span class="ct">/*  nomehat = sqrt(omehat(1)^2+omehat(2)^2+omehat(3)^2); */</span></td></tr>
+<tr name="215" id="215">
+<td>215</td><td>  <span class="ct">/*  Phi1 = I3 - omekhatx*sin(nomehat*dt)/nomehat + omekhatx*omekhatx*(1 - cos(nomehat*dt))/(nomehat^2); */</span></td></tr>
+<tr name="216" id="216">
+<td>216</td><td>  <span class="ct">/*  Phi2 = omekhatx*(1 - cos(nomehat*dt))/(nomehat^2) - I3*dt - omekhatx*omekhatx*(nomehat*dt - sin(nomehat*dt))/(nomehat^3); */</span></td></tr>
+<tr name="217" id="217">
+<td>217</td><td>  <span class="ct">/* '&lt;S1&gt;:1:40' */</span></td></tr>
+<tr name="218" id="218">
+<td>218</td><td>  <span class="kw">for</span> (<a id="218c8" class="tk">i</a> = 0; <a id="218c15" class="tk">i</a> &lt; 6; <a id="218c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="219" id="219">
+<td>219</td><td>    <span class="kw">for</span> (<a id="219c10" class="tk">i_1</a> = 0; <a id="219c19" class="tk">i_1</a> &lt; 6; <a id="219c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="220" id="220">
+<td>220</td><td>      <a id="220c7" class="tk">a_0</a>[<a id="220c11" class="tk">i</a> + 6 * <a id="220c19" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="221" id="221">
+<td>221</td><td>      <span class="kw">for</span> (<a id="221c12" class="tk">i_0</a> = 0; <a id="221c21" class="tk">i_0</a> &lt; 6; <a id="221c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="222" id="222">
+<td>222</td><td>        <a id="222c9" class="tk">a_0</a>[<a id="222c13" class="tk">i</a> + 6 * <a id="222c21" class="tk">i_1</a>] += <a id="222c29" class="tk">a</a>[6 * <a id="222c35" class="tk">i_0</a> + <a id="222c41" class="tk">i</a>] * <a id="222c46" class="tk">Kalman_DW</a>.<a id="222c56" class="tk">UnitDelay_DSTATE</a>[6 * <a id="222c77" class="tk">i_1</a></td></tr>
+<tr name="223" id="223">
+<td>223</td><td>          + <a id="223c13" class="tk">i_0</a>];</td></tr>
+<tr name="224" id="224">
+<td>224</td><td>      <span class="br">}</span></td></tr>
+<tr name="225" id="225">
+<td>225</td><td>    <span class="br">}</span></td></tr>
+<tr name="226" id="226">
+<td>226</td><td>  <span class="br">}</span></td></tr>
+<tr name="227" id="227">
+<td>227</td><td></td></tr>
+<tr name="228" id="228">
+<td>228</td><td>  <span class="kw">for</span> (<a id="228c8" class="tk">i</a> = 0; <a id="228c15" class="tk">i</a> &lt; 6; <a id="228c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="229" id="229">
+<td>229</td><td>    <span class="kw">for</span> (<a id="229c10" class="tk">i_1</a> = 0; <a id="229c19" class="tk">i_1</a> &lt; 6; <a id="229c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="230" id="230">
+<td>230</td><td>      <a id="230c7" class="tk">dq_idx_3</a> = 0.0;</td></tr>
+<tr name="231" id="231">
+<td>231</td><td>      <span class="kw">for</span> (<a id="231c12" class="tk">i_0</a> = 0; <a id="231c21" class="tk">i_0</a> &lt; 6; <a id="231c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="232" id="232">
+<td>232</td><td>        <a id="232c9" class="tk">dq_idx_3</a> += <a id="232c21" class="tk">a_0</a>[6 * <a id="232c29" class="tk">i_0</a> + <a id="232c35" class="tk">i</a>] * <a id="232c40" class="tk">b</a>[6 * <a id="232c46" class="tk">i_1</a> + <a id="232c52" class="tk">i_0</a>];</td></tr>
+<tr name="233" id="233">
+<td>233</td><td>      <span class="br">}</span></td></tr>
+<tr name="234" id="234">
+<td>234</td><td></td></tr>
+<tr name="235" id="235">
+<td>235</td><td>      <a id="235c7" class="tk">rtb_Pkm</a>[<a id="235c15" class="tk">i</a> + 6 * <a id="235c23" class="tk">i_1</a>] = <a id="235c30" class="tk">y</a>[6 * <a id="235c36" class="tk">i_1</a> + <a id="235c42" class="tk">i</a>] + <a id="235c47" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="236" id="236">
+<td>236</td><td>    <span class="br">}</span></td></tr>
+<tr name="237" id="237">
+<td>237</td><td>  <span class="br">}</span></td></tr>
+<tr name="238" id="238">
+<td>238</td><td></td></tr>
+<tr name="239" id="239">
+<td>239</td><td>  <span class="ct">/* End of MATLAB Function: '&lt;Root&gt;/Propagation ' */</span></td></tr>
+<tr name="240" id="240">
+<td>240</td><td></td></tr>
+<tr name="241" id="241">
+<td>241</td><td>  <span class="ct">/* MATLAB Function: '&lt;Root&gt;/Update' incorporates:</span></td></tr>
+<tr name="242" id="242">
+<td>242</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/ax'</span></td></tr>
+<tr name="243" id="243">
+<td>243</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/ay'</span></td></tr>
+<tr name="244" id="244">
+<td>244</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/az'</span></td></tr>
+<tr name="245" id="245">
+<td>245</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/gx'</span></td></tr>
+<tr name="246" id="246">
+<td>246</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/gy'</span></td></tr>
+<tr name="247" id="247">
+<td>247</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/gz'</span></td></tr>
+<tr name="248" id="248">
+<td>248</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/mx'</span></td></tr>
+<tr name="249" id="249">
+<td>249</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/my'</span></td></tr>
+<tr name="250" id="250">
+<td>250</td><td><span class="ct">   *  Inport: '&lt;Root&gt;/mz'</span></td></tr>
+<tr name="251" id="251">
+<td>251</td><td><span class="ct">   *  UnitDelay: '&lt;Root&gt;/Unit Delay3'</span></td></tr>
+<tr name="252" id="252">
+<td>252</td><td><span class="ct">   */</span></td></tr>
+<tr name="253" id="253">
+<td>253</td><td>  <span class="ct">/* MATLAB Function 'Update': '&lt;S2&gt;:1' */</span></td></tr>
+<tr name="254" id="254">
+<td>254</td><td>  <span class="ct">/* % EKF - Update           % */</span></td></tr>
+<tr name="255" id="255">
+<td>255</td><td>  <span class="ct">/*  Author: Mattia Giurato  % */</span></td></tr>
+<tr name="256" id="256">
+<td>256</td><td>  <span class="ct">/*  Last review: 2016/03/15 % */</span></td></tr>
+<tr name="257" id="257">
+<td>257</td><td>  <span class="ct">/* %%%%%%%%%%%%%%%%%%%%%%%%%% */</span></td></tr>
+<tr name="258" id="258">
+<td>258</td><td>  <span class="ct">/* '&lt;S2&gt;:1:6' */</span></td></tr>
+<tr name="259" id="259">
+<td>259</td><td>  <span class="ct">/* '&lt;S2&gt;:1:7' */</span></td></tr>
+<tr name="260" id="260">
+<td>260</td><td>  <span class="ct">/* '&lt;S2&gt;:1:8' */</span></td></tr>
+<tr name="261" id="261">
+<td>261</td><td>  <span class="ct">/* '&lt;S2&gt;:1:9' */</span></td></tr>
+<tr name="262" id="262">
+<td>262</td><td>  <span class="ct">/* '&lt;S2&gt;:1:10' */</span></td></tr>
+<tr name="263" id="263">
+<td>263</td><td>  <span class="ct">/* '&lt;S2&gt;:1:11' */</span></td></tr>
+<tr name="264" id="264">
+<td>264</td><td>  <span class="ct">/* '&lt;S2&gt;:1:12' */</span></td></tr>
+<tr name="265" id="265">
+<td>265</td><td>  <span class="ct">/* '&lt;S2&gt;:1:13' */</span></td></tr>
+<tr name="266" id="266">
+<td>266</td><td>  <span class="ct">/* '&lt;S2&gt;:1:14' */</span></td></tr>
+<tr name="267" id="267">
+<td>267</td><td>  <span class="ct">/* '&lt;S2&gt;:1:15' */</span></td></tr>
+<tr name="268" id="268">
+<td>268</td><td>  <span class="ct">/* '&lt;S2&gt;:1:16' */</span></td></tr>
+<tr name="269" id="269">
+<td>269</td><td>  <span class="ct">/* '&lt;S2&gt;:1:17' */</span></td></tr>
+<tr name="270" id="270">
+<td>270</td><td>  <a id="270c3" class="tk">Magnetometer</a>[0] = <a id="270c21" class="tk">Kalman_U</a>.<a id="270c30" class="tk">mx</a>;</td></tr>
+<tr name="271" id="271">
+<td>271</td><td>  <a id="271c3" class="tk">Magnetometer</a>[1] = <a id="271c21" class="tk">Kalman_U</a>.<a id="271c30" class="tk">my</a>;</td></tr>
+<tr name="272" id="272">
+<td>272</td><td>  <a id="272c3" class="tk">Magnetometer</a>[2] = <a id="272c21" class="tk">Kalman_U</a>.<a id="272c30" class="tk">mz</a>;</td></tr>
+<tr name="273" id="273">
+<td>273</td><td></td></tr>
+<tr name="274" id="274">
+<td>274</td><td>  <span class="ct">/*  Usefull values */</span></td></tr>
+<tr name="275" id="275">
+<td>275</td><td>  <span class="ct">/* '&lt;S2&gt;:1:23' */</span></td></tr>
+<tr name="276" id="276">
+<td>276</td><td>  <span class="ct">/*  Normalise accelerometer measurement */</span></td></tr>
+<tr name="277" id="277">
+<td>277</td><td>  <span class="ct">/*  if(norm(Accelerometer) == 0), return; end % handle NaN */</span></td></tr>
+<tr name="278" id="278">
+<td>278</td><td>  <span class="ct">/* '&lt;S2&gt;:1:28' */</span></td></tr>
+<tr name="279" id="279">
+<td>279</td><td>  <a id="279c3" class="tk">rtb_qkp_idx_0</a> = <a id="279c19" class="tk">sqrt</a>((<a id="279c25" class="tk">Kalman_U</a>.<a id="279c34" class="tk">ax</a> * <a id="279c39" class="tk">Kalman_U</a>.<a id="279c48" class="tk">ax</a> + <a id="279c53" class="tk">Kalman_U</a>.<a id="279c62" class="tk">ay</a> * <a id="279c67" class="tk">Kalman_U</a>.<a id="279c76" class="tk">ay</a>) +</td></tr>
+<tr name="280" id="280">
+<td>280</td><td>                       <a id="280c24" class="tk">Kalman_U</a>.<a id="280c33" class="tk">az</a> * <a id="280c38" class="tk">Kalman_U</a>.<a id="280c47" class="tk">az</a>);</td></tr>
+<tr name="281" id="281">
+<td>281</td><td></td></tr>
+<tr name="282" id="282">
+<td>282</td><td>  <span class="ct">/*  normalise magnitude */</span></td></tr>
+<tr name="283" id="283">
+<td>283</td><td>  <span class="ct">/*  Normalise magnetometer measurement */</span></td></tr>
+<tr name="284" id="284">
+<td>284</td><td>  <span class="ct">/*  if(norm(Magnetometer) == 0), return; end % handle NaN */</span></td></tr>
+<tr name="285" id="285">
+<td>285</td><td>  <span class="ct">/* '&lt;S2&gt;:1:32' */</span></td></tr>
+<tr name="286" id="286">
+<td>286</td><td>  <a id="286c3" class="tk">dq_idx_2</a> = <a id="286c14" class="tk">sqrt</a>((<a id="286c20" class="tk">Kalman_U</a>.<a id="286c29" class="tk">mx</a> * <a id="286c34" class="tk">Kalman_U</a>.<a id="286c43" class="tk">mx</a> + <a id="286c48" class="tk">Kalman_U</a>.<a id="286c57" class="tk">my</a> * <a id="286c62" class="tk">Kalman_U</a>.<a id="286c71" class="tk">my</a>) +</td></tr>
+<tr name="287" id="287">
+<td>287</td><td>                  <a id="287c19" class="tk">Kalman_U</a>.<a id="287c28" class="tk">mz</a> * <a id="287c33" class="tk">Kalman_U</a>.<a id="287c42" class="tk">mz</a>);</td></tr>
+<tr name="288" id="288">
+<td>288</td><td></td></tr>
+<tr name="289" id="289">
+<td>289</td><td>  <span class="ct">/*  normalise magnitude */</span></td></tr>
+<tr name="290" id="290">
+<td>290</td><td>  <span class="ct">/* % Propagated value from previous step */</span></td></tr>
+<tr name="291" id="291">
+<td>291</td><td>  <span class="ct">/* '&lt;S2&gt;:1:35' */</span></td></tr>
+<tr name="292" id="292">
+<td>292</td><td>  <span class="ct">/* % Accelerometer and Magnetometer correction */</span></td></tr>
+<tr name="293" id="293">
+<td>293</td><td>  <span class="ct">/*  Compute attitude matrix */</span></td></tr>
+<tr name="294" id="294">
+<td>294</td><td>  <span class="ct">/* '&lt;S2&gt;:1:39' */</span></td></tr>
+<tr name="295" id="295">
+<td>295</td><td>  <a id="295c3" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[0] = <a id="295c40" class="tk">rtb_qkm</a>[0];</td></tr>
+<tr name="296" id="296">
+<td>296</td><td>  <a id="296c3" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[1] = <a id="296c40" class="tk">rtb_qkm</a>[1];</td></tr>
+<tr name="297" id="297">
+<td>297</td><td>  <a id="297c3" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[2] = <a id="297c40" class="tk">rtb_qkm</a>[2];</td></tr>
+<tr name="298" id="298">
+<td>298</td><td></td></tr>
+<tr name="299" id="299">
+<td>299</td><td>  <span class="ct">/* '&lt;S2&gt;:1:42' */</span></td></tr>
+<tr name="300" id="300">
+<td>300</td><td>  <span class="ct">/* '&lt;S2&gt;:1:43' */</span></td></tr>
+<tr name="301" id="301">
+<td>301</td><td>  <span class="ct">/* '&lt;S2&gt;:1:46' */</span></td></tr>
+<tr name="302" id="302">
+<td>302</td><td>  <span class="ct">/* '&lt;S2&gt;:1:47' */</span></td></tr>
+<tr name="303" id="303">
+<td>303</td><td>  <a id="303c3" class="tk">dq_idx_3</a> = <a id="303c14" class="tk">rtb_qkm_p</a> * <a id="303c26" class="tk">rtb_qkm_p</a> - ((<a id="303c40" class="tk">rtb_qkm</a>[0] * <a id="303c53" class="tk">rtb_qkm</a>[0] + <a id="303c66" class="tk">rtb_qkm</a>[1] *</td></tr>
+<tr name="304" id="304">
+<td>304</td><td>    <a id="304c5" class="tk">rtb_qkm</a>[1]) + <a id="304c19" class="tk">rtb_qkm</a>[2] * <a id="304c32" class="tk">rtb_qkm</a>[2]);</td></tr>
+<tr name="305" id="305">
+<td>305</td><td>  <a id="305c3" class="tk">dq_idx_0</a> = 2.0 * <a id="305c20" class="tk">rtb_qkm_p</a>;</td></tr>
+<tr name="306" id="306">
+<td>306</td><td>  <span class="kw">for</span> (<a id="306c8" class="tk">i</a> = 0; <a id="306c15" class="tk">i</a> &lt; 3; <a id="306c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="307" id="307">
+<td>307</td><td>    <a id="307c5" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[<a id="307c37" class="tk">i</a>] = <a id="307c42" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[<a id="307c74" class="tk">i</a>] *</td></tr>
+<tr name="308" id="308">
+<td>308</td><td>      <a id="308c7" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[0];</td></tr>
+<tr name="309" id="309">
+<td>309</td><td>    <a id="309c5" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[<a id="309c37" class="tk">i</a> + 3] = <a id="309c46" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[<a id="309c78" class="tk">i</a>] *</td></tr>
+<tr name="310" id="310">
+<td>310</td><td>      <a id="310c7" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[1];</td></tr>
+<tr name="311" id="311">
+<td>311</td><td>    <a id="311c5" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[<a id="311c37" class="tk">i</a> + 6] = <a id="311c46" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[<a id="311c78" class="tk">i</a>] *</td></tr>
+<tr name="312" id="312">
+<td>312</td><td>      <a id="312c7" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[2];</td></tr>
+<tr name="313" id="313">
+<td>313</td><td>  <span class="br">}</span></td></tr>
+<tr name="314" id="314">
+<td>314</td><td></td></tr>
+<tr name="315" id="315">
+<td>315</td><td>  <a id="315c3" class="tk">tmp_0</a>[0] = 0.0;</td></tr>
+<tr name="316" id="316">
+<td>316</td><td>  <a id="316c3" class="tk">tmp_0</a>[3] = -<a id="316c15" class="tk">rtb_qkm</a>[2];</td></tr>
+<tr name="317" id="317">
+<td>317</td><td>  <a id="317c3" class="tk">tmp_0</a>[6] = <a id="317c14" class="tk">rtb_qkm</a>[1];</td></tr>
+<tr name="318" id="318">
+<td>318</td><td>  <a id="318c3" class="tk">tmp_0</a>[1] = <a id="318c14" class="tk">rtb_qkm</a>[2];</td></tr>
+<tr name="319" id="319">
+<td>319</td><td>  <a id="319c3" class="tk">tmp_0</a>[4] = 0.0;</td></tr>
+<tr name="320" id="320">
+<td>320</td><td>  <a id="320c3" class="tk">tmp_0</a>[7] = -<a id="320c15" class="tk">rtb_qkm</a>[0];</td></tr>
+<tr name="321" id="321">
+<td>321</td><td>  <a id="321c3" class="tk">tmp_0</a>[2] = -<a id="321c15" class="tk">rtb_qkm</a>[1];</td></tr>
+<tr name="322" id="322">
+<td>322</td><td>  <a id="322c3" class="tk">tmp_0</a>[5] = <a id="322c14" class="tk">rtb_qkm</a>[0];</td></tr>
+<tr name="323" id="323">
+<td>323</td><td>  <a id="323c3" class="tk">tmp_0</a>[8] = 0.0;</td></tr>
+<tr name="324" id="324">
+<td>324</td><td>  <span class="kw">for</span> (<a id="324c8" class="tk">i</a> = 0; <a id="324c15" class="tk">i</a> &lt; 3; <a id="324c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="325" id="325">
+<td>325</td><td>    <a id="325c5" class="tk">Aqkm</a>[3 * <a id="325c14" class="tk">i</a>] = ((<a id="325c21" class="tk">real_T</a>)<a id="325c28" class="tk">b_b</a>[3 * <a id="325c36" class="tk">i</a>] * <a id="325c41" class="tk">dq_idx_3</a> +</td></tr>
+<tr name="326" id="326">
+<td>326</td><td>                   <a id="326c20" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3 * <a id="326c56" class="tk">i</a>] * 2.0) - <a id="326c68" class="tk">tmp_0</a>[3 * <a id="326c78" class="tk">i</a>] *</td></tr>
+<tr name="327" id="327">
+<td>327</td><td>      <a id="327c7" class="tk">dq_idx_0</a>;</td></tr>
+<tr name="328" id="328">
+<td>328</td><td>    <a id="328c5" class="tk">Aqkm</a>[1 + 3 * <a id="328c18" class="tk">i</a>] = ((<a id="328c25" class="tk">real_T</a>)<a id="328c32" class="tk">b_b</a>[3 * <a id="328c40" class="tk">i</a> + 1] * <a id="328c49" class="tk">dq_idx_3</a> +</td></tr>
+<tr name="329" id="329">
+<td>329</td><td>                       <a id="329c24" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3 * <a id="329c60" class="tk">i</a> + 1] * 2.0) -</td></tr>
+<tr name="330" id="330">
+<td>330</td><td>      <a id="330c7" class="tk">tmp_0</a>[3 * <a id="330c17" class="tk">i</a> + 1] * <a id="330c26" class="tk">dq_idx_0</a>;</td></tr>
+<tr name="331" id="331">
+<td>331</td><td>    <a id="331c5" class="tk">Aqkm</a>[2 + 3 * <a id="331c18" class="tk">i</a>] = ((<a id="331c25" class="tk">real_T</a>)<a id="331c32" class="tk">b_b</a>[3 * <a id="331c40" class="tk">i</a> + 2] * <a id="331c49" class="tk">dq_idx_3</a> +</td></tr>
+<tr name="332" id="332">
+<td>332</td><td>                       <a id="332c24" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[3 * <a id="332c60" class="tk">i</a> + 2] * 2.0) -</td></tr>
+<tr name="333" id="333">
+<td>333</td><td>      <a id="333c7" class="tk">tmp_0</a>[3 * <a id="333c17" class="tk">i</a> + 2] * <a id="333c26" class="tk">dq_idx_0</a>;</td></tr>
+<tr name="334" id="334">
+<td>334</td><td>  <span class="br">}</span></td></tr>
+<tr name="335" id="335">
+<td>335</td><td></td></tr>
+<tr name="336" id="336">
+<td>336</td><td>  <span class="ct">/*  Reference direction of Earth's gravitational field */</span></td></tr>
+<tr name="337" id="337">
+<td>337</td><td>  <span class="ct">/* '&lt;S2&gt;:1:52' */</span></td></tr>
+<tr name="338" id="338">
+<td>338</td><td>  <span class="kw">for</span> (<a id="338c8" class="tk">i</a> = 0; <a id="338c15" class="tk">i</a> &lt; 3; <a id="338c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="339" id="339">
+<td>339</td><td>    <a id="339c5" class="tk">Aqmr</a>[<a id="339c10" class="tk">i</a>] = <a id="339c15" class="tk">Aqkm</a>[<a id="339c20" class="tk">i</a> + 6];</td></tr>
+<tr name="340" id="340">
+<td>340</td><td>  <span class="br">}</span></td></tr>
+<tr name="341" id="341">
+<td>341</td><td></td></tr>
+<tr name="342" id="342">
+<td>342</td><td>  <span class="ct">/* '&lt;S2&gt;:1:54' */</span></td></tr>
+<tr name="343" id="343">
+<td>343</td><td>  <span class="ct">/*  Sensitivity Matrix */</span></td></tr>
+<tr name="344" id="344">
+<td>344</td><td>  <span class="ct">/* '&lt;S2&gt;:1:57' */</span></td></tr>
+<tr name="345" id="345">
+<td>345</td><td>  <span class="ct">/* '&lt;S2&gt;:1:60' */</span></td></tr>
+<tr name="346" id="346">
+<td>346</td><td>  <a id="346c3" class="tk">Hk</a>[0] = 0.0;</td></tr>
+<tr name="347" id="347">
+<td>347</td><td>  <a id="347c3" class="tk">Hk</a>[3] = -<a id="347c12" class="tk">Aqmr</a>[2];</td></tr>
+<tr name="348" id="348">
+<td>348</td><td>  <a id="348c3" class="tk">Hk</a>[6] = <a id="348c11" class="tk">Aqmr</a>[1];</td></tr>
+<tr name="349" id="349">
+<td>349</td><td>  <a id="349c3" class="tk">Hk</a>[1] = <a id="349c11" class="tk">Aqmr</a>[2];</td></tr>
+<tr name="350" id="350">
+<td>350</td><td>  <a id="350c3" class="tk">Hk</a>[4] = 0.0;</td></tr>
+<tr name="351" id="351">
+<td>351</td><td>  <a id="351c3" class="tk">Hk</a>[7] = -<a id="351c12" class="tk">Aqmr</a>[0];</td></tr>
+<tr name="352" id="352">
+<td>352</td><td>  <a id="352c3" class="tk">Hk</a>[2] = -<a id="352c12" class="tk">Aqmr</a>[1];</td></tr>
+<tr name="353" id="353">
+<td>353</td><td>  <a id="353c3" class="tk">Hk</a>[5] = <a id="353c11" class="tk">Aqmr</a>[0];</td></tr>
+<tr name="354" id="354">
+<td>354</td><td>  <a id="354c3" class="tk">Hk</a>[8] = 0.0;</td></tr>
+<tr name="355" id="355">
+<td>355</td><td>  <span class="kw">for</span> (<a id="355c8" class="tk">i</a> = 0; <a id="355c15" class="tk">i</a> &lt; 3; <a id="355c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="356" id="356">
+<td>356</td><td>    <a id="356c5" class="tk">Hk</a>[3 * (<a id="356c13" class="tk">i</a> + 3)] = 0.0;</td></tr>
+<tr name="357" id="357">
+<td>357</td><td>    <a id="357c5" class="tk">Hk</a>[1 + 3 * (<a id="357c17" class="tk">i</a> + 3)] = 0.0;</td></tr>
+<tr name="358" id="358">
+<td>358</td><td>    <a id="358c5" class="tk">Hk</a>[2 + 3 * (<a id="358c17" class="tk">i</a> + 3)] = 0.0;</td></tr>
+<tr name="359" id="359">
+<td>359</td><td>  <span class="br">}</span></td></tr>
+<tr name="360" id="360">
+<td>360</td><td></td></tr>
+<tr name="361" id="361">
+<td>361</td><td>  <span class="ct">/*  Gain */</span></td></tr>
+<tr name="362" id="362">
+<td>362</td><td>  <span class="ct">/* '&lt;S2&gt;:1:63' */</span></td></tr>
+<tr name="363" id="363">
+<td>363</td><td>  <span class="kw">for</span> (<a id="363c8" class="tk">i</a> = 0; <a id="363c15" class="tk">i</a> &lt; 6; <a id="363c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="364" id="364">
+<td>364</td><td>    <span class="kw">for</span> (<a id="364c10" class="tk">i_1</a> = 0; <a id="364c19" class="tk">i_1</a> &lt; 3; <a id="364c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="365" id="365">
+<td>365</td><td>      <a id="365c7" class="tk">rtb_Pkm_0</a>[<a id="365c17" class="tk">i</a> + 6 * <a id="365c25" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="366" id="366">
+<td>366</td><td>      <span class="kw">for</span> (<a id="366c12" class="tk">i_0</a> = 0; <a id="366c21" class="tk">i_0</a> &lt; 6; <a id="366c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="367" id="367">
+<td>367</td><td>        <a id="367c9" class="tk">rtb_Pkm_0</a>[<a id="367c19" class="tk">i</a> + 6 * <a id="367c27" class="tk">i_1</a>] += <a id="367c35" class="tk">rtb_Pkm</a>[6 * <a id="367c47" class="tk">i_0</a> + <a id="367c53" class="tk">i</a>] * <a id="367c58" class="tk">Hk</a>[3 * <a id="367c65" class="tk">i_0</a> + <a id="367c71" class="tk">i_1</a>];</td></tr>
+<tr name="368" id="368">
+<td>368</td><td>      <span class="br">}</span></td></tr>
+<tr name="369" id="369">
+<td>369</td><td>    <span class="br">}</span></td></tr>
+<tr name="370" id="370">
+<td>370</td><td>  <span class="br">}</span></td></tr>
+<tr name="371" id="371">
+<td>371</td><td></td></tr>
+<tr name="372" id="372">
+<td>372</td><td>  <span class="kw">for</span> (<a id="372c8" class="tk">i</a> = 0; <a id="372c15" class="tk">i</a> &lt; 3; <a id="372c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="373" id="373">
+<td>373</td><td>    <span class="kw">for</span> (<a id="373c10" class="tk">i_1</a> = 0; <a id="373c19" class="tk">i_1</a> &lt; 6; <a id="373c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="374" id="374">
+<td>374</td><td>      <a id="374c7" class="tk">Kk</a>[<a id="374c10" class="tk">i</a> + 3 * <a id="374c18" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="375" id="375">
+<td>375</td><td>      <span class="kw">for</span> (<a id="375c12" class="tk">i_0</a> = 0; <a id="375c21" class="tk">i_0</a> &lt; 6; <a id="375c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="376" id="376">
+<td>376</td><td>        <a id="376c9" class="tk">Kk</a>[<a id="376c12" class="tk">i</a> + 3 * <a id="376c20" class="tk">i_1</a>] += <a id="376c28" class="tk">Hk</a>[3 * <a id="376c35" class="tk">i_0</a> + <a id="376c41" class="tk">i</a>] * <a id="376c46" class="tk">rtb_Pkm</a>[6 * <a id="376c58" class="tk">i_1</a> + <a id="376c64" class="tk">i_0</a>];</td></tr>
+<tr name="377" id="377">
+<td>377</td><td>      <span class="br">}</span></td></tr>
+<tr name="378" id="378">
+<td>378</td><td>    <span class="br">}</span></td></tr>
+<tr name="379" id="379">
+<td>379</td><td>  <span class="br">}</span></td></tr>
+<tr name="380" id="380">
+<td>380</td><td></td></tr>
+<tr name="381" id="381">
+<td>381</td><td>  <span class="kw">for</span> (<a id="381c8" class="tk">i</a> = 0; <a id="381c15" class="tk">i</a> &lt; 3; <a id="381c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="382" id="382">
+<td>382</td><td>    <span class="kw">for</span> (<a id="382c10" class="tk">i_1</a> = 0; <a id="382c19" class="tk">i_1</a> &lt; 3; <a id="382c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="383" id="383">
+<td>383</td><td>      <a id="383c7" class="tk">dq_idx_3</a> = 0.0;</td></tr>
+<tr name="384" id="384">
+<td>384</td><td>      <span class="kw">for</span> (<a id="384c12" class="tk">i_0</a> = 0; <a id="384c21" class="tk">i_0</a> &lt; 6; <a id="384c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="385" id="385">
+<td>385</td><td>        <a id="385c9" class="tk">dq_idx_3</a> += <a id="385c21" class="tk">Kk</a>[3 * <a id="385c28" class="tk">i_0</a> + <a id="385c34" class="tk">i</a>] * <a id="385c39" class="tk">Hk</a>[3 * <a id="385c46" class="tk">i_0</a> + <a id="385c52" class="tk">i_1</a>];</td></tr>
+<tr name="386" id="386">
+<td>386</td><td>      <span class="br">}</span></td></tr>
+<tr name="387" id="387">
+<td>387</td><td></td></tr>
+<tr name="388" id="388">
+<td>388</td><td>      <a id="388c7" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[<a id="388c39" class="tk">i</a> + 3 * <a id="388c47" class="tk">i_1</a>] = <a id="388c54" class="tk">b_R</a>[3 * <a id="388c62" class="tk">i_1</a> + <a id="388c68" class="tk">i</a>] + <a id="388c73" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="389" id="389">
+<td>389</td><td>    <span class="br">}</span></td></tr>
+<tr name="390" id="390">
+<td>390</td><td>  <span class="br">}</span></td></tr>
+<tr name="391" id="391">
+<td>391</td><td></td></tr>
+<tr name="392" id="392">
+<td>392</td><td>  <a id="392c3" class="tk">Kalman_mrdivide</a>(<a id="392c19" class="tk">rtb_Pkm_0</a>, <a id="392c30" class="tk">rtb_TmpSignalConversionAtSFun_0</a>, <a id="392c63" class="tk">Kk</a>);</td></tr>
+<tr name="393" id="393">
+<td>393</td><td></td></tr>
+<tr name="394" id="394">
+<td>394</td><td>  <span class="ct">/*  Update Covariance */</span></td></tr>
+<tr name="395" id="395">
+<td>395</td><td>  <span class="ct">/* '&lt;S2&gt;:1:66' */</span></td></tr>
+<tr name="396" id="396">
+<td>396</td><td>  <span class="kw">for</span> (<a id="396c8" class="tk">i</a> = 0; <a id="396c15" class="tk">i</a> &lt; 6; <a id="396c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="397" id="397">
+<td>397</td><td>    <span class="kw">for</span> (<a id="397c10" class="tk">i_1</a> = 0; <a id="397c19" class="tk">i_1</a> &lt; 6; <a id="397c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="398" id="398">
+<td>398</td><td>      <a id="398c7" class="tk">a_0</a>[<a id="398c11" class="tk">i</a> + 6 * <a id="398c19" class="tk">i_1</a>] = (<a id="398c27" class="tk">real_T</a>)<a id="398c34" class="tk">I6</a>[6 * <a id="398c41" class="tk">i_1</a> + <a id="398c47" class="tk">i</a>] - ((<a id="398c54" class="tk">Hk</a>[3 * <a id="398c61" class="tk">i_1</a> + 1] * <a id="398c72" class="tk">Kk</a>[<a id="398c75" class="tk">i</a> + 6]</td></tr>
+<tr name="399" id="399">
+<td>399</td><td>        + <a id="399c11" class="tk">Hk</a>[3 * <a id="399c18" class="tk">i_1</a>] * <a id="399c25" class="tk">Kk</a>[<a id="399c28" class="tk">i</a>]) + <a id="399c34" class="tk">Hk</a>[3 * <a id="399c41" class="tk">i_1</a> + 2] * <a id="399c52" class="tk">Kk</a>[<a id="399c55" class="tk">i</a> + 12]);</td></tr>
+<tr name="400" id="400">
+<td>400</td><td>    <span class="br">}</span></td></tr>
+<tr name="401" id="401">
+<td>401</td><td>  <span class="br">}</span></td></tr>
+<tr name="402" id="402">
+<td>402</td><td></td></tr>
+<tr name="403" id="403">
+<td>403</td><td>  <span class="kw">for</span> (<a id="403c8" class="tk">i</a> = 0; <a id="403c15" class="tk">i</a> &lt; 6; <a id="403c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="404" id="404">
+<td>404</td><td>    <span class="kw">for</span> (<a id="404c10" class="tk">i_1</a> = 0; <a id="404c19" class="tk">i_1</a> &lt; 6; <a id="404c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="405" id="405">
+<td>405</td><td>      <a id="405c7" class="tk">I6_0</a>[<a id="405c12" class="tk">i</a> + 6 * <a id="405c20" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="406" id="406">
+<td>406</td><td>      <span class="kw">for</span> (<a id="406c12" class="tk">i_0</a> = 0; <a id="406c21" class="tk">i_0</a> &lt; 6; <a id="406c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="407" id="407">
+<td>407</td><td>        <a id="407c9" class="tk">I6_0</a>[<a id="407c14" class="tk">i</a> + 6 * <a id="407c22" class="tk">i_1</a>] += <a id="407c30" class="tk">a_0</a>[6 * <a id="407c38" class="tk">i_0</a> + <a id="407c44" class="tk">i</a>] * <a id="407c49" class="tk">rtb_Pkm</a>[6 * <a id="407c61" class="tk">i_1</a> + <a id="407c67" class="tk">i_0</a>];</td></tr>
+<tr name="408" id="408">
+<td>408</td><td>      <span class="br">}</span></td></tr>
+<tr name="409" id="409">
+<td>409</td><td>    <span class="br">}</span></td></tr>
+<tr name="410" id="410">
+<td>410</td><td>  <span class="br">}</span></td></tr>
+<tr name="411" id="411">
+<td>411</td><td></td></tr>
+<tr name="412" id="412">
+<td>412</td><td>  <span class="kw">for</span> (<a id="412c8" class="tk">i</a> = 0; <a id="412c15" class="tk">i</a> &lt; 6; <a id="412c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="413" id="413">
+<td>413</td><td>    <span class="kw">for</span> (<a id="413c10" class="tk">i_1</a> = 0; <a id="413c19" class="tk">i_1</a> &lt; 6; <a id="413c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="414" id="414">
+<td>414</td><td>      <a id="414c7" class="tk">a_0</a>[<a id="414c11" class="tk">i</a> + 6 * <a id="414c19" class="tk">i_1</a>] = (<a id="414c27" class="tk">real_T</a>)<a id="414c34" class="tk">I6</a>[6 * <a id="414c41" class="tk">i</a> + <a id="414c45" class="tk">i_1</a>] - ((<a id="414c54" class="tk">Hk</a>[3 * <a id="414c61" class="tk">i</a> + 1] * <a id="414c70" class="tk">Kk</a>[<a id="414c73" class="tk">i_1</a> + 6]</td></tr>
+<tr name="415" id="415">
+<td>415</td><td>        + <a id="415c11" class="tk">Hk</a>[3 * <a id="415c18" class="tk">i</a>] * <a id="415c23" class="tk">Kk</a>[<a id="415c26" class="tk">i_1</a>]) + <a id="415c34" class="tk">Hk</a>[3 * <a id="415c41" class="tk">i</a> + 2] * <a id="415c50" class="tk">Kk</a>[<a id="415c53" class="tk">i_1</a> + 12]);</td></tr>
+<tr name="416" id="416">
+<td>416</td><td>    <span class="br">}</span></td></tr>
+<tr name="417" id="417">
+<td>417</td><td>  <span class="br">}</span></td></tr>
+<tr name="418" id="418">
+<td>418</td><td></td></tr>
+<tr name="419" id="419">
+<td>419</td><td>  <span class="kw">for</span> (<a id="419c8" class="tk">i</a> = 0; <a id="419c15" class="tk">i</a> &lt; 6; <a id="419c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="420" id="420">
+<td>420</td><td>    <span class="kw">for</span> (<a id="420c10" class="tk">i_1</a> = 0; <a id="420c19" class="tk">i_1</a> &lt; 3; <a id="420c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="421" id="421">
+<td>421</td><td>      <a id="421c7" class="tk">rtb_Pkm_0</a>[<a id="421c17" class="tk">i</a> + 6 * <a id="421c25" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="422" id="422">
+<td>422</td><td>      <a id="422c7" class="tk">rtb_Pkm_0</a>[<a id="422c17" class="tk">i</a> + 6 * <a id="422c25" class="tk">i_1</a>] += <a id="422c33" class="tk">b_R</a>[3 * <a id="422c41" class="tk">i_1</a>] * <a id="422c48" class="tk">Kk</a>[<a id="422c51" class="tk">i</a>];</td></tr>
+<tr name="423" id="423">
+<td>423</td><td>      <a id="423c7" class="tk">rtb_Pkm_0</a>[<a id="423c17" class="tk">i</a> + 6 * <a id="423c25" class="tk">i_1</a>] += <a id="423c33" class="tk">b_R</a>[3 * <a id="423c41" class="tk">i_1</a> + 1] * <a id="423c52" class="tk">Kk</a>[<a id="423c55" class="tk">i</a> + 6];</td></tr>
+<tr name="424" id="424">
+<td>424</td><td>      <a id="424c7" class="tk">rtb_Pkm_0</a>[<a id="424c17" class="tk">i</a> + 6 * <a id="424c25" class="tk">i_1</a>] += <a id="424c33" class="tk">b_R</a>[3 * <a id="424c41" class="tk">i_1</a> + 2] * <a id="424c52" class="tk">Kk</a>[<a id="424c55" class="tk">i</a> + 12];</td></tr>
+<tr name="425" id="425">
+<td>425</td><td>    <span class="br">}</span></td></tr>
+<tr name="426" id="426">
+<td>426</td><td>  <span class="br">}</span></td></tr>
+<tr name="427" id="427">
+<td>427</td><td></td></tr>
+<tr name="428" id="428">
+<td>428</td><td>  <span class="kw">for</span> (<a id="428c8" class="tk">i</a> = 0; <a id="428c15" class="tk">i</a> &lt; 6; <a id="428c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="429" id="429">
+<td>429</td><td>    <span class="kw">for</span> (<a id="429c10" class="tk">i_1</a> = 0; <a id="429c19" class="tk">i_1</a> &lt; 6; <a id="429c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="430" id="430">
+<td>430</td><td>      <a id="430c7" class="tk">rtb_Pkm</a>[<a id="430c15" class="tk">i</a> + 6 * <a id="430c23" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="431" id="431">
+<td>431</td><td>      <span class="kw">for</span> (<a id="431c12" class="tk">i_0</a> = 0; <a id="431c21" class="tk">i_0</a> &lt; 6; <a id="431c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="432" id="432">
+<td>432</td><td>        <a id="432c9" class="tk">rtb_Pkm</a>[<a id="432c17" class="tk">i</a> + 6 * <a id="432c25" class="tk">i_1</a>] += <a id="432c33" class="tk">I6_0</a>[6 * <a id="432c42" class="tk">i_0</a> + <a id="432c48" class="tk">i</a>] * <a id="432c53" class="tk">a_0</a>[6 * <a id="432c61" class="tk">i_1</a> + <a id="432c67" class="tk">i_0</a>];</td></tr>
+<tr name="433" id="433">
+<td>433</td><td>      <span class="br">}</span></td></tr>
+<tr name="434" id="434">
+<td>434</td><td>    <span class="br">}</span></td></tr>
+<tr name="435" id="435">
+<td>435</td><td>  <span class="br">}</span></td></tr>
+<tr name="436" id="436">
+<td>436</td><td></td></tr>
+<tr name="437" id="437">
+<td>437</td><td>  <span class="kw">for</span> (<a id="437c8" class="tk">i</a> = 0; <a id="437c15" class="tk">i</a> &lt; 6; <a id="437c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="438" id="438">
+<td>438</td><td>    <span class="kw">for</span> (<a id="438c10" class="tk">i_1</a> = 0; <a id="438c19" class="tk">i_1</a> &lt; 6; <a id="438c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="439" id="439">
+<td>439</td><td>      <a id="439c7" class="tk">a_0</a>[<a id="439c11" class="tk">i</a> + 6 * <a id="439c19" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="440" id="440">
+<td>440</td><td>      <a id="440c7" class="tk">a_0</a>[<a id="440c11" class="tk">i</a> + 6 * <a id="440c19" class="tk">i_1</a>] += <a id="440c27" class="tk">rtb_Pkm_0</a>[<a id="440c37" class="tk">i</a>] * <a id="440c42" class="tk">Kk</a>[<a id="440c45" class="tk">i_1</a>];</td></tr>
+<tr name="441" id="441">
+<td>441</td><td>      <a id="441c7" class="tk">a_0</a>[<a id="441c11" class="tk">i</a> + 6 * <a id="441c19" class="tk">i_1</a>] += <a id="441c27" class="tk">rtb_Pkm_0</a>[<a id="441c37" class="tk">i</a> + 6] * <a id="441c46" class="tk">Kk</a>[<a id="441c49" class="tk">i_1</a> + 6];</td></tr>
+<tr name="442" id="442">
+<td>442</td><td>      <a id="442c7" class="tk">a_0</a>[<a id="442c11" class="tk">i</a> + 6 * <a id="442c19" class="tk">i_1</a>] += <a id="442c27" class="tk">rtb_Pkm_0</a>[<a id="442c37" class="tk">i</a> + 12] * <a id="442c47" class="tk">Kk</a>[<a id="442c50" class="tk">i_1</a> + 12];</td></tr>
+<tr name="443" id="443">
+<td>443</td><td>    <span class="br">}</span></td></tr>
+<tr name="444" id="444">
+<td>444</td><td>  <span class="br">}</span></td></tr>
+<tr name="445" id="445">
+<td>445</td><td></td></tr>
+<tr name="446" id="446">
+<td>446</td><td>  <span class="kw">for</span> (<a id="446c8" class="tk">i</a> = 0; <a id="446c15" class="tk">i</a> &lt; 6; <a id="446c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="447" id="447">
+<td>447</td><td>    <span class="kw">for</span> (<a id="447c10" class="tk">i_1</a> = 0; <a id="447c19" class="tk">i_1</a> &lt; 6; <a id="447c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="448" id="448">
+<td>448</td><td>      <a id="448c7" class="tk">Pkp</a>[<a id="448c11" class="tk">i_1</a> + 6 * <a id="448c21" class="tk">i</a>] = <a id="448c26" class="tk">rtb_Pkm</a>[6 * <a id="448c38" class="tk">i</a> + <a id="448c42" class="tk">i_1</a>] + <a id="448c49" class="tk">a_0</a>[6 * <a id="448c57" class="tk">i</a> + <a id="448c61" class="tk">i_1</a>];</td></tr>
+<tr name="449" id="449">
+<td>449</td><td>    <span class="br">}</span></td></tr>
+<tr name="450" id="450">
+<td>450</td><td>  <span class="br">}</span></td></tr>
+<tr name="451" id="451">
+<td>451</td><td></td></tr>
+<tr name="452" id="452">
+<td>452</td><td>  <span class="ct">/*  Update state */</span></td></tr>
+<tr name="453" id="453">
+<td>453</td><td>  <span class="ct">/* '&lt;S2&gt;:1:69' */</span></td></tr>
+<tr name="454" id="454">
+<td>454</td><td>  <span class="ct">/* residual */</span></td></tr>
+<tr name="455" id="455">
+<td>455</td><td>  <span class="ct">/* '&lt;S2&gt;:1:70' */</span></td></tr>
+<tr name="456" id="456">
+<td>456</td><td>  <span class="ct">/* '&lt;S2&gt;:1:71' */</span></td></tr>
+<tr name="457" id="457">
+<td>457</td><td>  <a id="457c3" class="tk">dq_idx_0</a> = <a id="457c14" class="tk">Kalman_U</a>.<a id="457c23" class="tk">ax</a> / <a id="457c28" class="tk">rtb_qkp_idx_0</a> - <a id="457c44" class="tk">Aqmr</a>[0];</td></tr>
+<tr name="458" id="458">
+<td>458</td><td>  <a id="458c3" class="tk">dq_idx_1</a> = <a id="458c14" class="tk">Kalman_U</a>.<a id="458c23" class="tk">ay</a> / <a id="458c28" class="tk">rtb_qkp_idx_0</a> - <a id="458c44" class="tk">Aqmr</a>[1];</td></tr>
+<tr name="459" id="459">
+<td>459</td><td>  <a id="459c3" class="tk">dq_idx_3</a> = <a id="459c14" class="tk">Kalman_U</a>.<a id="459c23" class="tk">az</a> / <a id="459c28" class="tk">rtb_qkp_idx_0</a> - <a id="459c44" class="tk">Aqmr</a>[2];</td></tr>
+<tr name="460" id="460">
+<td>460</td><td>  <span class="kw">for</span> (<a id="460c8" class="tk">i</a> = 0; <a id="460c15" class="tk">i</a> &lt; 6; <a id="460c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="461" id="461">
+<td>461</td><td>    <a id="461c5" class="tk">deltaXkp</a>[<a id="461c14" class="tk">i</a>] = (<a id="461c20" class="tk">Kk</a>[<a id="461c23" class="tk">i</a> + 6] * <a id="461c32" class="tk">dq_idx_1</a> + <a id="461c43" class="tk">Kk</a>[<a id="461c46" class="tk">i</a>] * <a id="461c51" class="tk">dq_idx_0</a>) + <a id="461c63" class="tk">Kk</a>[<a id="461c66" class="tk">i</a> + 12] *</td></tr>
+<tr name="462" id="462">
+<td>462</td><td>      <a id="462c7" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="463" id="463">
+<td>463</td><td>  <span class="br">}</span></td></tr>
+<tr name="464" id="464">
+<td>464</td><td></td></tr>
+<tr name="465" id="465">
+<td>465</td><td>  <span class="ct">/*  Reference direction of Earth's magnetic feild */</span></td></tr>
+<tr name="466" id="466">
+<td>466</td><td>  <span class="ct">/* '&lt;S2&gt;:1:77' */</span></td></tr>
+<tr name="467" id="467">
+<td>467</td><td>  <span class="kw">for</span> (<a id="467c8" class="tk">i</a> = 0; <a id="467c15" class="tk">i</a> &lt; 3; <a id="467c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="468" id="468">
+<td>468</td><td>    <a id="468c5" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[<a id="468c37" class="tk">i</a>] = <a id="468c42" class="tk">Aqkm</a>[<a id="468c47" class="tk">i</a> + 6] * <a id="468c56" class="tk">Kalman_U</a>.<a id="468c65" class="tk">mz</a> + (<a id="468c71" class="tk">Aqkm</a>[<a id="468c76" class="tk">i</a> + 3]</td></tr>
+<tr name="469" id="469">
+<td>469</td><td>      * <a id="469c9" class="tk">Kalman_U</a>.<a id="469c18" class="tk">my</a> + <a id="469c23" class="tk">Aqkm</a>[<a id="469c28" class="tk">i</a>] * <a id="469c33" class="tk">Kalman_U</a>.<a id="469c42" class="tk">mx</a>);</td></tr>
+<tr name="470" id="470">
+<td>470</td><td>  <span class="br">}</span></td></tr>
+<tr name="471" id="471">
+<td>471</td><td></td></tr>
+<tr name="472" id="472">
+<td>472</td><td>  <span class="ct">/* '&lt;S2&gt;:1:78' */</span></td></tr>
+<tr name="473" id="473">
+<td>473</td><td>  <span class="ct">/* '&lt;S2&gt;:1:79' */</span></td></tr>
+<tr name="474" id="474">
+<td>474</td><td>  <span class="ct">/* '&lt;S2&gt;:1:82' */</span></td></tr>
+<tr name="475" id="475">
+<td>475</td><td>  <a id="475c3" class="tk">dq_idx_3</a> = <a id="475c14" class="tk">sqrt</a>(<a id="475c19" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[0] *</td></tr>
+<tr name="476" id="476">
+<td>476</td><td>                  <a id="476c19" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[0] +</td></tr>
+<tr name="477" id="477">
+<td>477</td><td>                  <a id="477c19" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[1] *</td></tr>
+<tr name="478" id="478">
+<td>478</td><td>                  <a id="478c19" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[1]);</td></tr>
+<tr name="479" id="479">
+<td>479</td><td>  <span class="kw">for</span> (<a id="479c8" class="tk">i</a> = 0; <a id="479c15" class="tk">i</a> &lt; 3; <a id="479c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="480" id="480">
+<td>480</td><td>    <a id="480c5" class="tk">Aqmr</a>[<a id="480c10" class="tk">i</a>] = <a id="480c15" class="tk">Aqkm</a>[<a id="480c20" class="tk">i</a> + 6] * <a id="480c29" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[2] + <a id="480c66" class="tk">Aqkm</a>[<a id="480c71" class="tk">i</a>] *</td></tr>
+<tr name="481" id="481">
+<td>481</td><td>      <a id="481c7" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="482" id="482">
+<td>482</td><td>  <span class="br">}</span></td></tr>
+<tr name="483" id="483">
+<td>483</td><td></td></tr>
+<tr name="484" id="484">
+<td>484</td><td>  <span class="ct">/* '&lt;S2&gt;:1:84' */</span></td></tr>
+<tr name="485" id="485">
+<td>485</td><td>  <span class="ct">/*  Sensitivity Matrix */</span></td></tr>
+<tr name="486" id="486">
+<td>486</td><td>  <span class="ct">/* '&lt;S2&gt;:1:87' */</span></td></tr>
+<tr name="487" id="487">
+<td>487</td><td>  <span class="ct">/* '&lt;S2&gt;:1:90' */</span></td></tr>
+<tr name="488" id="488">
+<td>488</td><td>  <a id="488c3" class="tk">Hk</a>[0] = 0.0;</td></tr>
+<tr name="489" id="489">
+<td>489</td><td>  <a id="489c3" class="tk">Hk</a>[3] = -<a id="489c12" class="tk">Aqmr</a>[2];</td></tr>
+<tr name="490" id="490">
+<td>490</td><td>  <a id="490c3" class="tk">Hk</a>[6] = <a id="490c11" class="tk">Aqmr</a>[1];</td></tr>
+<tr name="491" id="491">
+<td>491</td><td>  <a id="491c3" class="tk">Hk</a>[1] = <a id="491c11" class="tk">Aqmr</a>[2];</td></tr>
+<tr name="492" id="492">
+<td>492</td><td>  <a id="492c3" class="tk">Hk</a>[4] = 0.0;</td></tr>
+<tr name="493" id="493">
+<td>493</td><td>  <a id="493c3" class="tk">Hk</a>[7] = -<a id="493c12" class="tk">Aqmr</a>[0];</td></tr>
+<tr name="494" id="494">
+<td>494</td><td>  <a id="494c3" class="tk">Hk</a>[2] = -<a id="494c12" class="tk">Aqmr</a>[1];</td></tr>
+<tr name="495" id="495">
+<td>495</td><td>  <a id="495c3" class="tk">Hk</a>[5] = <a id="495c11" class="tk">Aqmr</a>[0];</td></tr>
+<tr name="496" id="496">
+<td>496</td><td>  <a id="496c3" class="tk">Hk</a>[8] = 0.0;</td></tr>
+<tr name="497" id="497">
+<td>497</td><td>  <span class="kw">for</span> (<a id="497c8" class="tk">i</a> = 0; <a id="497c15" class="tk">i</a> &lt; 3; <a id="497c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="498" id="498">
+<td>498</td><td>    <a id="498c5" class="tk">Hk</a>[3 * (<a id="498c13" class="tk">i</a> + 3)] = 0.0;</td></tr>
+<tr name="499" id="499">
+<td>499</td><td>    <a id="499c5" class="tk">Hk</a>[1 + 3 * (<a id="499c17" class="tk">i</a> + 3)] = 0.0;</td></tr>
+<tr name="500" id="500">
+<td>500</td><td>    <a id="500c5" class="tk">Hk</a>[2 + 3 * (<a id="500c17" class="tk">i</a> + 3)] = 0.0;</td></tr>
+<tr name="501" id="501">
+<td>501</td><td>  <span class="br">}</span></td></tr>
+<tr name="502" id="502">
+<td>502</td><td></td></tr>
+<tr name="503" id="503">
+<td>503</td><td>  <span class="ct">/*  Gain */</span></td></tr>
+<tr name="504" id="504">
+<td>504</td><td>  <span class="ct">/* '&lt;S2&gt;:1:93' */</span></td></tr>
+<tr name="505" id="505">
+<td>505</td><td>  <span class="kw">for</span> (<a id="505c8" class="tk">i</a> = 0; <a id="505c15" class="tk">i</a> &lt; 6; <a id="505c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="506" id="506">
+<td>506</td><td>    <span class="kw">for</span> (<a id="506c10" class="tk">i_1</a> = 0; <a id="506c19" class="tk">i_1</a> &lt; 3; <a id="506c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="507" id="507">
+<td>507</td><td>      <a id="507c7" class="tk">rtb_Pkm_0</a>[<a id="507c17" class="tk">i</a> + 6 * <a id="507c25" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="508" id="508">
+<td>508</td><td>      <span class="kw">for</span> (<a id="508c12" class="tk">i_0</a> = 0; <a id="508c21" class="tk">i_0</a> &lt; 6; <a id="508c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="509" id="509">
+<td>509</td><td>        <a id="509c9" class="tk">rtb_Pkm_0</a>[<a id="509c19" class="tk">i</a> + 6 * <a id="509c27" class="tk">i_1</a>] += <a id="509c35" class="tk">Pkp</a>[6 * <a id="509c43" class="tk">i_0</a> + <a id="509c49" class="tk">i</a>] * <a id="509c54" class="tk">Hk</a>[3 * <a id="509c61" class="tk">i_0</a> + <a id="509c67" class="tk">i_1</a>];</td></tr>
+<tr name="510" id="510">
+<td>510</td><td>      <span class="br">}</span></td></tr>
+<tr name="511" id="511">
+<td>511</td><td>    <span class="br">}</span></td></tr>
+<tr name="512" id="512">
+<td>512</td><td>  <span class="br">}</span></td></tr>
+<tr name="513" id="513">
+<td>513</td><td></td></tr>
+<tr name="514" id="514">
+<td>514</td><td>  <span class="kw">for</span> (<a id="514c8" class="tk">i</a> = 0; <a id="514c15" class="tk">i</a> &lt; 3; <a id="514c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="515" id="515">
+<td>515</td><td>    <span class="kw">for</span> (<a id="515c10" class="tk">i_1</a> = 0; <a id="515c19" class="tk">i_1</a> &lt; 6; <a id="515c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="516" id="516">
+<td>516</td><td>      <a id="516c7" class="tk">Kk</a>[<a id="516c10" class="tk">i</a> + 3 * <a id="516c18" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="517" id="517">
+<td>517</td><td>      <span class="kw">for</span> (<a id="517c12" class="tk">i_0</a> = 0; <a id="517c21" class="tk">i_0</a> &lt; 6; <a id="517c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="518" id="518">
+<td>518</td><td>        <a id="518c9" class="tk">Kk</a>[<a id="518c12" class="tk">i</a> + 3 * <a id="518c20" class="tk">i_1</a>] += <a id="518c28" class="tk">Hk</a>[3 * <a id="518c35" class="tk">i_0</a> + <a id="518c41" class="tk">i</a>] * <a id="518c46" class="tk">Pkp</a>[6 * <a id="518c54" class="tk">i_1</a> + <a id="518c60" class="tk">i_0</a>];</td></tr>
+<tr name="519" id="519">
+<td>519</td><td>      <span class="br">}</span></td></tr>
+<tr name="520" id="520">
+<td>520</td><td>    <span class="br">}</span></td></tr>
+<tr name="521" id="521">
+<td>521</td><td>  <span class="br">}</span></td></tr>
+<tr name="522" id="522">
+<td>522</td><td></td></tr>
+<tr name="523" id="523">
+<td>523</td><td>  <span class="kw">for</span> (<a id="523c8" class="tk">i</a> = 0; <a id="523c15" class="tk">i</a> &lt; 3; <a id="523c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="524" id="524">
+<td>524</td><td>    <span class="kw">for</span> (<a id="524c10" class="tk">i_1</a> = 0; <a id="524c19" class="tk">i_1</a> &lt; 3; <a id="524c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="525" id="525">
+<td>525</td><td>      <a id="525c7" class="tk">dq_idx_3</a> = 0.0;</td></tr>
+<tr name="526" id="526">
+<td>526</td><td>      <span class="kw">for</span> (<a id="526c12" class="tk">i_0</a> = 0; <a id="526c21" class="tk">i_0</a> &lt; 6; <a id="526c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="527" id="527">
+<td>527</td><td>        <a id="527c9" class="tk">dq_idx_3</a> += <a id="527c21" class="tk">Kk</a>[3 * <a id="527c28" class="tk">i_0</a> + <a id="527c34" class="tk">i</a>] * <a id="527c39" class="tk">Hk</a>[3 * <a id="527c46" class="tk">i_0</a> + <a id="527c52" class="tk">i_1</a>];</td></tr>
+<tr name="528" id="528">
+<td>528</td><td>      <span class="br">}</span></td></tr>
+<tr name="529" id="529">
+<td>529</td><td></td></tr>
+<tr name="530" id="530">
+<td>530</td><td>      <a id="530c7" class="tk">rtb_TmpSignalConversionAtSFun_0</a>[<a id="530c39" class="tk">i</a> + 3 * <a id="530c47" class="tk">i_1</a>] = <a id="530c54" class="tk">R</a>[3 * <a id="530c60" class="tk">i_1</a> + <a id="530c66" class="tk">i</a>] + <a id="530c71" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="531" id="531">
+<td>531</td><td>    <span class="br">}</span></td></tr>
+<tr name="532" id="532">
+<td>532</td><td>  <span class="br">}</span></td></tr>
+<tr name="533" id="533">
+<td>533</td><td></td></tr>
+<tr name="534" id="534">
+<td>534</td><td>  <a id="534c3" class="tk">Kalman_mrdivide</a>(<a id="534c19" class="tk">rtb_Pkm_0</a>, <a id="534c30" class="tk">rtb_TmpSignalConversionAtSFun_0</a>, <a id="534c63" class="tk">Kk</a>);</td></tr>
+<tr name="535" id="535">
+<td>535</td><td></td></tr>
+<tr name="536" id="536">
+<td>536</td><td>  <span class="ct">/*  Update Covariance */</span></td></tr>
+<tr name="537" id="537">
+<td>537</td><td>  <span class="ct">/* '&lt;S2&gt;:1:96' */</span></td></tr>
+<tr name="538" id="538">
+<td>538</td><td>  <span class="ct">/*  Update state */</span></td></tr>
+<tr name="539" id="539">
+<td>539</td><td>  <span class="ct">/* '&lt;S2&gt;:1:99' */</span></td></tr>
+<tr name="540" id="540">
+<td>540</td><td>  <span class="ct">/* residual */</span></td></tr>
+<tr name="541" id="541">
+<td>541</td><td>  <span class="ct">/* '&lt;S2&gt;:1:100' */</span></td></tr>
+<tr name="542" id="542">
+<td>542</td><td>  <span class="ct">/* '&lt;S2&gt;:1:101' */</span></td></tr>
+<tr name="543" id="543">
+<td>543</td><td>  <span class="kw">for</span> (<a id="543c8" class="tk">i</a> = 0; <a id="543c15" class="tk">i</a> &lt; 3; <a id="543c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="544" id="544">
+<td>544</td><td>    <a id="544c5" class="tk">dq_idx_3</a> = 0.0;</td></tr>
+<tr name="545" id="545">
+<td>545</td><td>    <span class="kw">for</span> (<a id="545c10" class="tk">i_1</a> = 0; <a id="545c19" class="tk">i_1</a> &lt; 6; <a id="545c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="546" id="546">
+<td>546</td><td>      <a id="546c7" class="tk">dq_idx_3</a> += <a id="546c19" class="tk">Hk</a>[3 * <a id="546c26" class="tk">i_1</a> + <a id="546c32" class="tk">i</a>] * <a id="546c37" class="tk">deltaXkp</a>[<a id="546c46" class="tk">i_1</a>];</td></tr>
+<tr name="547" id="547">
+<td>547</td><td>    <span class="br">}</span></td></tr>
+<tr name="548" id="548">
+<td>548</td><td></td></tr>
+<tr name="549" id="549">
+<td>549</td><td>    <a id="549c5" class="tk">Magnetometer_0</a>[<a id="549c20" class="tk">i</a>] = (<a id="549c26" class="tk">Magnetometer</a>[<a id="549c39" class="tk">i</a>] / <a id="549c44" class="tk">dq_idx_2</a> - <a id="549c55" class="tk">Aqmr</a>[<a id="549c60" class="tk">i</a>]) - <a id="549c66" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="550" id="550">
+<td>550</td><td>  <span class="br">}</span></td></tr>
+<tr name="551" id="551">
+<td>551</td><td></td></tr>
+<tr name="552" id="552">
+<td>552</td><td>  <span class="kw">for</span> (<a id="552c8" class="tk">i</a> = 0; <a id="552c15" class="tk">i</a> &lt; 6; <a id="552c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="553" id="553">
+<td>553</td><td>    <a id="553c5" class="tk">deltaXkp</a>[<a id="553c14" class="tk">i</a>] += (<a id="553c21" class="tk">Kk</a>[<a id="553c24" class="tk">i</a> + 6] * <a id="553c33" class="tk">Magnetometer_0</a>[1] + <a id="553c53" class="tk">Kk</a>[<a id="553c56" class="tk">i</a>] * <a id="553c61" class="tk">Magnetometer_0</a>[0]) +</td></tr>
+<tr name="554" id="554">
+<td>554</td><td>      <a id="554c7" class="tk">Kk</a>[<a id="554c10" class="tk">i</a> + 12] * <a id="554c20" class="tk">Magnetometer_0</a>[2];</td></tr>
+<tr name="555" id="555">
+<td>555</td><td>  <span class="br">}</span></td></tr>
+<tr name="556" id="556">
+<td>556</td><td></td></tr>
+<tr name="557" id="557">
+<td>557</td><td>  <span class="ct">/*  Update quaternion */</span></td></tr>
+<tr name="558" id="558">
+<td>558</td><td>  <span class="ct">/* '&lt;S2&gt;:1:104' */</span></td></tr>
+<tr name="559" id="559">
+<td>559</td><td>  <span class="ct">/* '&lt;S2&gt;:1:105' */</span></td></tr>
+<tr name="560" id="560">
+<td>560</td><td>  <span class="ct">/* '&lt;S2&gt;:1:106' */</span></td></tr>
+<tr name="561" id="561">
+<td>561</td><td>  <a id="561c3" class="tk">rtb_qkp_idx_0</a> = 1.0 / <a id="561c25" class="tk">sqrt</a>(((<a id="561c32" class="tk">deltaXkp</a>[0] * <a id="561c46" class="tk">deltaXkp</a>[0] + <a id="561c60" class="tk">deltaXkp</a>[1] *</td></tr>
+<tr name="562" id="562">
+<td>562</td><td>    <a id="562c5" class="tk">deltaXkp</a>[1]) + <a id="562c20" class="tk">deltaXkp</a>[2] * <a id="562c34" class="tk">deltaXkp</a>[2]) + 4.0);</td></tr>
+<tr name="563" id="563">
+<td>563</td><td>  <a id="563c3" class="tk">dq_idx_0</a> = <a id="563c14" class="tk">rtb_qkp_idx_0</a> * <a id="563c30" class="tk">deltaXkp</a>[0];</td></tr>
+<tr name="564" id="564">
+<td>564</td><td>  <a id="564c3" class="tk">dq_idx_1</a> = <a id="564c14" class="tk">rtb_qkp_idx_0</a> * <a id="564c30" class="tk">deltaXkp</a>[1];</td></tr>
+<tr name="565" id="565">
+<td>565</td><td>  <a id="565c3" class="tk">dq_idx_2</a> = <a id="565c14" class="tk">rtb_qkp_idx_0</a> * <a id="565c30" class="tk">deltaXkp</a>[2];</td></tr>
+<tr name="566" id="566">
+<td>566</td><td>  <a id="566c3" class="tk">dq_idx_3</a> = <a id="566c14" class="tk">rtb_qkp_idx_0</a> * 2.0;</td></tr>
+<tr name="567" id="567">
+<td>567</td><td></td></tr>
+<tr name="568" id="568">
+<td>568</td><td>  <span class="ct">/* '&lt;S2&gt;:1:107' */</span></td></tr>
+<tr name="569" id="569">
+<td>569</td><td>  <a id="569c3" class="tk">rtb_qkp_idx_0</a> = (<a id="569c20" class="tk">dq_idx_3</a> * <a id="569c31" class="tk">rtb_qkm</a>[0] + <a id="569c44" class="tk">rtb_qkm_p</a> * <a id="569c56" class="tk">dq_idx_0</a>) - (<a id="569c69" class="tk">dq_idx_1</a> *</td></tr>
+<tr name="570" id="570">
+<td>570</td><td>    <a id="570c5" class="tk">rtb_qkm</a>[2] - <a id="570c18" class="tk">dq_idx_2</a> * <a id="570c29" class="tk">rtb_qkm</a>[1]);</td></tr>
+<tr name="571" id="571">
+<td>571</td><td>  <a id="571c3" class="tk">rtb_qkp_idx_1</a> = (<a id="571c20" class="tk">dq_idx_3</a> * <a id="571c31" class="tk">rtb_qkm</a>[1] + <a id="571c44" class="tk">rtb_qkm_p</a> * <a id="571c56" class="tk">dq_idx_1</a>) - (<a id="571c69" class="tk">dq_idx_2</a> *</td></tr>
+<tr name="572" id="572">
+<td>572</td><td>    <a id="572c5" class="tk">rtb_qkm</a>[0] - <a id="572c18" class="tk">dq_idx_0</a> * <a id="572c29" class="tk">rtb_qkm</a>[2]);</td></tr>
+<tr name="573" id="573">
+<td>573</td><td>  <a id="573c3" class="tk">rtb_qkp_idx_2</a> = (<a id="573c20" class="tk">dq_idx_3</a> * <a id="573c31" class="tk">rtb_qkm</a>[2] + <a id="573c44" class="tk">rtb_qkm_p</a> * <a id="573c56" class="tk">dq_idx_2</a>) - (<a id="573c69" class="tk">dq_idx_0</a> *</td></tr>
+<tr name="574" id="574">
+<td>574</td><td>    <a id="574c5" class="tk">rtb_qkm</a>[1] - <a id="574c18" class="tk">dq_idx_1</a> * <a id="574c29" class="tk">rtb_qkm</a>[0]);</td></tr>
+<tr name="575" id="575">
+<td>575</td><td>  <a id="575c3" class="tk">dq_idx_3</a> = <a id="575c14" class="tk">dq_idx_3</a> * <a id="575c25" class="tk">rtb_qkm_p</a> - ((<a id="575c39" class="tk">dq_idx_0</a> * <a id="575c50" class="tk">rtb_qkm</a>[0] + <a id="575c63" class="tk">dq_idx_1</a> *</td></tr>
+<tr name="576" id="576">
+<td>576</td><td>    <a id="576c5" class="tk">rtb_qkm</a>[1]) + <a id="576c19" class="tk">dq_idx_2</a> * <a id="576c30" class="tk">rtb_qkm</a>[2]);</td></tr>
+<tr name="577" id="577">
+<td>577</td><td></td></tr>
+<tr name="578" id="578">
+<td>578</td><td>  <span class="ct">/*  Update biases */</span></td></tr>
+<tr name="579" id="579">
+<td>579</td><td>  <span class="ct">/* '&lt;S2&gt;:1:111' */</span></td></tr>
+<tr name="580" id="580">
+<td>580</td><td>  <span class="ct">/* '&lt;S2&gt;:1:112' */</span></td></tr>
+<tr name="581" id="581">
+<td>581</td><td>  <a id="581c3" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[0] = <a id="581c40" class="tk">Kalman_DW</a>.<a id="581c50" class="tk">UnitDelay3_DSTATE</a>[0] +</td></tr>
+<tr name="582" id="582">
+<td>582</td><td>    <a id="582c5" class="tk">deltaXkp</a>[3];</td></tr>
+<tr name="583" id="583">
+<td>583</td><td>  <a id="583c3" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[1] = <a id="583c40" class="tk">Kalman_DW</a>.<a id="583c50" class="tk">UnitDelay3_DSTATE</a>[1] +</td></tr>
+<tr name="584" id="584">
+<td>584</td><td>    <a id="584c5" class="tk">deltaXkp</a>[4];</td></tr>
+<tr name="585" id="585">
+<td>585</td><td>  <a id="585c3" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[2] = <a id="585c40" class="tk">Kalman_DW</a>.<a id="585c50" class="tk">UnitDelay3_DSTATE</a>[2] +</td></tr>
+<tr name="586" id="586">
+<td>586</td><td>    <a id="586c5" class="tk">deltaXkp</a>[5];</td></tr>
+<tr name="587" id="587">
+<td>587</td><td></td></tr>
+<tr name="588" id="588">
+<td>588</td><td>  <span class="ct">/* % Depolarize gyroscope measurement */</span></td></tr>
+<tr name="589" id="589">
+<td>589</td><td>  <span class="ct">/* '&lt;S2&gt;:1:115' */</span></td></tr>
+<tr name="590" id="590">
+<td>590</td><td>  <span class="ct">/* % Convert Quaternion into RPY */</span></td></tr>
+<tr name="591" id="591">
+<td>591</td><td>  <span class="ct">/* '&lt;S2&gt;:1:118' */</span></td></tr>
+<tr name="592" id="592">
+<td>592</td><td>  <span class="ct">/* '&lt;S2&gt;:1:119' */</span></td></tr>
+<tr name="593" id="593">
+<td>593</td><td>  <span class="ct">/* '&lt;S2&gt;:1:120' */</span></td></tr>
+<tr name="594" id="594">
+<td>594</td><td>  <span class="ct">/* '&lt;S2&gt;:1:121' */</span></td></tr>
+<tr name="595" id="595">
+<td>595</td><td>  <span class="ct">/* '&lt;S2&gt;:1:122' */</span></td></tr>
+<tr name="596" id="596">
+<td>596</td><td>  <span class="ct">/* '&lt;S2&gt;:1:124' */</span></td></tr>
+<tr name="597" id="597">
+<td>597</td><td>  <span class="ct">/* '&lt;S2&gt;:1:125' */</span></td></tr>
+<tr name="598" id="598">
+<td>598</td><td>  <span class="ct">/* '&lt;S2&gt;:1:126' */</span></td></tr>
+<tr name="599" id="599">
+<td>599</td><td>  <span class="ct">/* '&lt;S2&gt;:1:128' */</span></td></tr>
+<tr name="600" id="600">
+<td>600</td><td>  <a id="600c3" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[0] = <a id="600c40" class="tk">Kalman_U</a>.<a id="600c49" class="tk">gx</a> -</td></tr>
+<tr name="601" id="601">
+<td>601</td><td>    <a id="601c5" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[0];</td></tr>
+<tr name="602" id="602">
+<td>602</td><td>  <a id="602c3" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[1] = <a id="602c40" class="tk">Kalman_U</a>.<a id="602c49" class="tk">gy</a> -</td></tr>
+<tr name="603" id="603">
+<td>603</td><td>    <a id="603c5" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[1];</td></tr>
+<tr name="604" id="604">
+<td>604</td><td>  <a id="604c3" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[2] = <a id="604c40" class="tk">Kalman_U</a>.<a id="604c49" class="tk">gz</a> -</td></tr>
+<tr name="605" id="605">
+<td>605</td><td>    <a id="605c5" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[2];</td></tr>
+<tr name="606" id="606">
+<td>606</td><td></td></tr>
+<tr name="607" id="607">
+<td>607</td><td>  <span class="ct">/* Outport: '&lt;Root&gt;/Quaternion' */</span></td></tr>
+<tr name="608" id="608">
+<td>608</td><td>  <a id="608c3" class="tk">Kalman_Y</a>.<a id="608c12" class="tk">Quaternion</a>[0] = <a id="608c28" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="609" id="609">
+<td>609</td><td>  <a id="609c3" class="tk">Kalman_Y</a>.<a id="609c12" class="tk">Quaternion</a>[1] = <a id="609c28" class="tk">rtb_qkp_idx_1</a>;</td></tr>
+<tr name="610" id="610">
+<td>610</td><td>  <a id="610c3" class="tk">Kalman_Y</a>.<a id="610c12" class="tk">Quaternion</a>[2] = <a id="610c28" class="tk">rtb_qkp_idx_2</a>;</td></tr>
+<tr name="611" id="611">
+<td>611</td><td>  <a id="611c3" class="tk">Kalman_Y</a>.<a id="611c12" class="tk">Quaternion</a>[3] = <a id="611c28" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="612" id="612">
+<td>612</td><td></td></tr>
+<tr name="613" id="613">
+<td>613</td><td>  <span class="ct">/* Outport: '&lt;Root&gt;/OmegaHat' */</span></td></tr>
+<tr name="614" id="614">
+<td>614</td><td>  <a id="614c3" class="tk">Kalman_Y</a>.<a id="614c12" class="tk">OmegaHat</a>[0] = <a id="614c26" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[0];</td></tr>
+<tr name="615" id="615">
+<td>615</td><td>  <a id="615c3" class="tk">Kalman_Y</a>.<a id="615c12" class="tk">OmegaHat</a>[1] = <a id="615c26" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[1];</td></tr>
+<tr name="616" id="616">
+<td>616</td><td>  <a id="616c3" class="tk">Kalman_Y</a>.<a id="616c12" class="tk">OmegaHat</a>[2] = <a id="616c26" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[2];</td></tr>
+<tr name="617" id="617">
+<td>617</td><td></td></tr>
+<tr name="618" id="618">
+<td>618</td><td>  <span class="ct">/* Outport: '&lt;Root&gt;/RPY' incorporates:</span></td></tr>
+<tr name="619" id="619">
+<td>619</td><td><span class="ct">   *  MATLAB Function: '&lt;Root&gt;/Update'</span></td></tr>
+<tr name="620" id="620">
+<td>620</td><td><span class="ct">   */</span></td></tr>
+<tr name="621" id="621">
+<td>621</td><td>  <a id="621c3" class="tk">Kalman_Y</a>.<a id="621c12" class="tk">RPY</a>[0] = <a id="621c21" class="tk">atan2</a>((<a id="621c28" class="tk">rtb_qkp_idx_1</a> * <a id="621c44" class="tk">rtb_qkp_idx_2</a> + <a id="621c60" class="tk">dq_idx_3</a> *</td></tr>
+<tr name="622" id="622">
+<td>622</td><td>    <a id="622c5" class="tk">rtb_qkp_idx_0</a>) * 2.0, ((<a id="622c29" class="tk">dq_idx_3</a> * <a id="622c40" class="tk">dq_idx_3</a> - <a id="622c51" class="tk">rtb_qkp_idx_0</a> * <a id="622c67" class="tk">rtb_qkp_idx_0</a>)</td></tr>
+<tr name="623" id="623">
+<td>623</td><td>    - <a id="623c7" class="tk">rtb_qkp_idx_1</a> * <a id="623c23" class="tk">rtb_qkp_idx_1</a>) + <a id="623c40" class="tk">rtb_qkp_idx_2</a> * <a id="623c56" class="tk">rtb_qkp_idx_2</a>);</td></tr>
+<tr name="624" id="624">
+<td>624</td><td>  <a id="624c3" class="tk">Kalman_Y</a>.<a id="624c12" class="tk">RPY</a>[1] = -<a id="624c22" class="tk">asin</a>((<a id="624c28" class="tk">rtb_qkp_idx_0</a> * <a id="624c44" class="tk">rtb_qkp_idx_2</a> - <a id="624c60" class="tk">dq_idx_3</a> *</td></tr>
+<tr name="625" id="625">
+<td>625</td><td>    <a id="625c5" class="tk">rtb_qkp_idx_1</a>) * -2.0);</td></tr>
+<tr name="626" id="626">
+<td>626</td><td>  <a id="626c3" class="tk">Kalman_Y</a>.<a id="626c12" class="tk">RPY</a>[2] = -<a id="626c22" class="tk">atan2</a>((<a id="626c29" class="tk">rtb_qkp_idx_0</a> * <a id="626c45" class="tk">rtb_qkp_idx_1</a> + <a id="626c61" class="tk">dq_idx_3</a> *</td></tr>
+<tr name="627" id="627">
+<td>627</td><td>    <a id="627c5" class="tk">rtb_qkp_idx_2</a>) * 2.0, ((<a id="627c29" class="tk">dq_idx_3</a> * <a id="627c40" class="tk">dq_idx_3</a> + <a id="627c51" class="tk">rtb_qkp_idx_0</a> * <a id="627c67" class="tk">rtb_qkp_idx_0</a>)</td></tr>
+<tr name="628" id="628">
+<td>628</td><td>    - <a id="628c7" class="tk">rtb_qkp_idx_1</a> * <a id="628c23" class="tk">rtb_qkp_idx_1</a>) - <a id="628c40" class="tk">rtb_qkp_idx_2</a> * <a id="628c56" class="tk">rtb_qkp_idx_2</a>);</td></tr>
+<tr name="629" id="629">
+<td>629</td><td></td></tr>
+<tr name="630" id="630">
+<td>630</td><td>  <span class="ct">/* Outport: '&lt;Root&gt;/beta ' */</span></td></tr>
+<tr name="631" id="631">
+<td>631</td><td>  <a id="631c3" class="tk">Kalman_Y</a>.<a id="631c12" class="tk">beta</a>[0] = <a id="631c22" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[0];</td></tr>
+<tr name="632" id="632">
+<td>632</td><td>  <a id="632c3" class="tk">Kalman_Y</a>.<a id="632c12" class="tk">beta</a>[1] = <a id="632c22" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[1];</td></tr>
+<tr name="633" id="633">
+<td>633</td><td>  <a id="633c3" class="tk">Kalman_Y</a>.<a id="633c12" class="tk">beta</a>[2] = <a id="633c22" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[2];</td></tr>
+<tr name="634" id="634">
+<td>634</td><td></td></tr>
+<tr name="635" id="635">
+<td>635</td><td>  <span class="ct">/* MATLAB Function: '&lt;Root&gt;/Update' */</span></td></tr>
+<tr name="636" id="636">
+<td>636</td><td>  <span class="kw">for</span> (<a id="636c8" class="tk">i</a> = 0; <a id="636c15" class="tk">i</a> &lt; 6; <a id="636c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="637" id="637">
+<td>637</td><td>    <span class="kw">for</span> (<a id="637c10" class="tk">i_1</a> = 0; <a id="637c19" class="tk">i_1</a> &lt; 6; <a id="637c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="638" id="638">
+<td>638</td><td>      <a id="638c7" class="tk">a_0</a>[<a id="638c11" class="tk">i</a> + 6 * <a id="638c19" class="tk">i_1</a>] = (<a id="638c27" class="tk">real_T</a>)<a id="638c34" class="tk">I6</a>[6 * <a id="638c41" class="tk">i_1</a> + <a id="638c47" class="tk">i</a>] - ((<a id="638c54" class="tk">Hk</a>[3 * <a id="638c61" class="tk">i_1</a> + 1] * <a id="638c72" class="tk">Kk</a>[<a id="638c75" class="tk">i</a> + 6]</td></tr>
+<tr name="639" id="639">
+<td>639</td><td>        + <a id="639c11" class="tk">Hk</a>[3 * <a id="639c18" class="tk">i_1</a>] * <a id="639c25" class="tk">Kk</a>[<a id="639c28" class="tk">i</a>]) + <a id="639c34" class="tk">Hk</a>[3 * <a id="639c41" class="tk">i_1</a> + 2] * <a id="639c52" class="tk">Kk</a>[<a id="639c55" class="tk">i</a> + 12]);</td></tr>
+<tr name="640" id="640">
+<td>640</td><td>    <span class="br">}</span></td></tr>
+<tr name="641" id="641">
+<td>641</td><td>  <span class="br">}</span></td></tr>
+<tr name="642" id="642">
+<td>642</td><td></td></tr>
+<tr name="643" id="643">
+<td>643</td><td>  <span class="kw">for</span> (<a id="643c8" class="tk">i</a> = 0; <a id="643c15" class="tk">i</a> &lt; 6; <a id="643c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="644" id="644">
+<td>644</td><td>    <span class="kw">for</span> (<a id="644c10" class="tk">i_1</a> = 0; <a id="644c19" class="tk">i_1</a> &lt; 6; <a id="644c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="645" id="645">
+<td>645</td><td>      <a id="645c7" class="tk">I6_0</a>[<a id="645c12" class="tk">i</a> + 6 * <a id="645c20" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="646" id="646">
+<td>646</td><td>      <span class="kw">for</span> (<a id="646c12" class="tk">i_0</a> = 0; <a id="646c21" class="tk">i_0</a> &lt; 6; <a id="646c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="647" id="647">
+<td>647</td><td>        <a id="647c9" class="tk">I6_0</a>[<a id="647c14" class="tk">i</a> + 6 * <a id="647c22" class="tk">i_1</a>] += <a id="647c30" class="tk">a_0</a>[6 * <a id="647c38" class="tk">i_0</a> + <a id="647c44" class="tk">i</a>] * <a id="647c49" class="tk">Pkp</a>[6 * <a id="647c57" class="tk">i_1</a> + <a id="647c63" class="tk">i_0</a>];</td></tr>
+<tr name="648" id="648">
+<td>648</td><td>      <span class="br">}</span></td></tr>
+<tr name="649" id="649">
+<td>649</td><td>    <span class="br">}</span></td></tr>
+<tr name="650" id="650">
+<td>650</td><td>  <span class="br">}</span></td></tr>
+<tr name="651" id="651">
+<td>651</td><td></td></tr>
+<tr name="652" id="652">
+<td>652</td><td>  <span class="kw">for</span> (<a id="652c8" class="tk">i</a> = 0; <a id="652c15" class="tk">i</a> &lt; 6; <a id="652c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="653" id="653">
+<td>653</td><td>    <span class="kw">for</span> (<a id="653c10" class="tk">i_1</a> = 0; <a id="653c19" class="tk">i_1</a> &lt; 6; <a id="653c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="654" id="654">
+<td>654</td><td>      <a id="654c7" class="tk">a_0</a>[<a id="654c11" class="tk">i</a> + 6 * <a id="654c19" class="tk">i_1</a>] = (<a id="654c27" class="tk">real_T</a>)<a id="654c34" class="tk">I6</a>[6 * <a id="654c41" class="tk">i</a> + <a id="654c45" class="tk">i_1</a>] - ((<a id="654c54" class="tk">Hk</a>[3 * <a id="654c61" class="tk">i</a> + 1] * <a id="654c70" class="tk">Kk</a>[<a id="654c73" class="tk">i_1</a> + 6]</td></tr>
+<tr name="655" id="655">
+<td>655</td><td>        + <a id="655c11" class="tk">Hk</a>[3 * <a id="655c18" class="tk">i</a>] * <a id="655c23" class="tk">Kk</a>[<a id="655c26" class="tk">i_1</a>]) + <a id="655c34" class="tk">Hk</a>[3 * <a id="655c41" class="tk">i</a> + 2] * <a id="655c50" class="tk">Kk</a>[<a id="655c53" class="tk">i_1</a> + 12]);</td></tr>
+<tr name="656" id="656">
+<td>656</td><td>    <span class="br">}</span></td></tr>
+<tr name="657" id="657">
+<td>657</td><td>  <span class="br">}</span></td></tr>
+<tr name="658" id="658">
+<td>658</td><td></td></tr>
+<tr name="659" id="659">
+<td>659</td><td>  <span class="kw">for</span> (<a id="659c8" class="tk">i</a> = 0; <a id="659c15" class="tk">i</a> &lt; 6; <a id="659c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="660" id="660">
+<td>660</td><td>    <span class="kw">for</span> (<a id="660c10" class="tk">i_1</a> = 0; <a id="660c19" class="tk">i_1</a> &lt; 3; <a id="660c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="661" id="661">
+<td>661</td><td>      <a id="661c7" class="tk">rtb_Pkm_0</a>[<a id="661c17" class="tk">i</a> + 6 * <a id="661c25" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="662" id="662">
+<td>662</td><td>      <a id="662c7" class="tk">rtb_Pkm_0</a>[<a id="662c17" class="tk">i</a> + 6 * <a id="662c25" class="tk">i_1</a>] += <a id="662c33" class="tk">R</a>[3 * <a id="662c39" class="tk">i_1</a>] * <a id="662c46" class="tk">Kk</a>[<a id="662c49" class="tk">i</a>];</td></tr>
+<tr name="663" id="663">
+<td>663</td><td>      <a id="663c7" class="tk">rtb_Pkm_0</a>[<a id="663c17" class="tk">i</a> + 6 * <a id="663c25" class="tk">i_1</a>] += <a id="663c33" class="tk">R</a>[3 * <a id="663c39" class="tk">i_1</a> + 1] * <a id="663c50" class="tk">Kk</a>[<a id="663c53" class="tk">i</a> + 6];</td></tr>
+<tr name="664" id="664">
+<td>664</td><td>      <a id="664c7" class="tk">rtb_Pkm_0</a>[<a id="664c17" class="tk">i</a> + 6 * <a id="664c25" class="tk">i_1</a>] += <a id="664c33" class="tk">R</a>[3 * <a id="664c39" class="tk">i_1</a> + 2] * <a id="664c50" class="tk">Kk</a>[<a id="664c53" class="tk">i</a> + 12];</td></tr>
+<tr name="665" id="665">
+<td>665</td><td>    <span class="br">}</span></td></tr>
+<tr name="666" id="666">
+<td>666</td><td>  <span class="br">}</span></td></tr>
+<tr name="667" id="667">
+<td>667</td><td></td></tr>
+<tr name="668" id="668">
+<td>668</td><td>  <span class="kw">for</span> (<a id="668c8" class="tk">i</a> = 0; <a id="668c15" class="tk">i</a> &lt; 6; <a id="668c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="669" id="669">
+<td>669</td><td>    <span class="kw">for</span> (<a id="669c10" class="tk">i_1</a> = 0; <a id="669c19" class="tk">i_1</a> &lt; 6; <a id="669c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="670" id="670">
+<td>670</td><td>      <a id="670c7" class="tk">rtb_Pkm</a>[<a id="670c15" class="tk">i</a> + 6 * <a id="670c23" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="671" id="671">
+<td>671</td><td>      <span class="kw">for</span> (<a id="671c12" class="tk">i_0</a> = 0; <a id="671c21" class="tk">i_0</a> &lt; 6; <a id="671c30" class="tk">i_0</a>++) <span class="br">{</span></td></tr>
+<tr name="672" id="672">
+<td>672</td><td>        <a id="672c9" class="tk">rtb_Pkm</a>[<a id="672c17" class="tk">i</a> + 6 * <a id="672c25" class="tk">i_1</a>] += <a id="672c33" class="tk">I6_0</a>[6 * <a id="672c42" class="tk">i_0</a> + <a id="672c48" class="tk">i</a>] * <a id="672c53" class="tk">a_0</a>[6 * <a id="672c61" class="tk">i_1</a> + <a id="672c67" class="tk">i_0</a>];</td></tr>
+<tr name="673" id="673">
+<td>673</td><td>      <span class="br">}</span></td></tr>
+<tr name="674" id="674">
+<td>674</td><td>    <span class="br">}</span></td></tr>
+<tr name="675" id="675">
+<td>675</td><td>  <span class="br">}</span></td></tr>
+<tr name="676" id="676">
+<td>676</td><td></td></tr>
+<tr name="677" id="677">
+<td>677</td><td>  <span class="kw">for</span> (<a id="677c8" class="tk">i</a> = 0; <a id="677c15" class="tk">i</a> &lt; 6; <a id="677c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="678" id="678">
+<td>678</td><td>    <span class="kw">for</span> (<a id="678c10" class="tk">i_1</a> = 0; <a id="678c19" class="tk">i_1</a> &lt; 6; <a id="678c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="679" id="679">
+<td>679</td><td>      <a id="679c7" class="tk">a_0</a>[<a id="679c11" class="tk">i</a> + 6 * <a id="679c19" class="tk">i_1</a>] = 0.0;</td></tr>
+<tr name="680" id="680">
+<td>680</td><td>      <a id="680c7" class="tk">a_0</a>[<a id="680c11" class="tk">i</a> + 6 * <a id="680c19" class="tk">i_1</a>] += <a id="680c27" class="tk">rtb_Pkm_0</a>[<a id="680c37" class="tk">i</a>] * <a id="680c42" class="tk">Kk</a>[<a id="680c45" class="tk">i_1</a>];</td></tr>
+<tr name="681" id="681">
+<td>681</td><td>      <a id="681c7" class="tk">a_0</a>[<a id="681c11" class="tk">i</a> + 6 * <a id="681c19" class="tk">i_1</a>] += <a id="681c27" class="tk">rtb_Pkm_0</a>[<a id="681c37" class="tk">i</a> + 6] * <a id="681c46" class="tk">Kk</a>[<a id="681c49" class="tk">i_1</a> + 6];</td></tr>
+<tr name="682" id="682">
+<td>682</td><td>      <a id="682c7" class="tk">a_0</a>[<a id="682c11" class="tk">i</a> + 6 * <a id="682c19" class="tk">i_1</a>] += <a id="682c27" class="tk">rtb_Pkm_0</a>[<a id="682c37" class="tk">i</a> + 12] * <a id="682c47" class="tk">Kk</a>[<a id="682c50" class="tk">i_1</a> + 12];</td></tr>
+<tr name="683" id="683">
+<td>683</td><td>    <span class="br">}</span></td></tr>
+<tr name="684" id="684">
+<td>684</td><td>  <span class="br">}</span></td></tr>
+<tr name="685" id="685">
+<td>685</td><td></td></tr>
+<tr name="686" id="686">
+<td>686</td><td>  <span class="ct">/* Update for UnitDelay: '&lt;Root&gt;/Unit Delay' incorporates:</span></td></tr>
+<tr name="687" id="687">
+<td>687</td><td><span class="ct">   *  MATLAB Function: '&lt;Root&gt;/Update'</span></td></tr>
+<tr name="688" id="688">
+<td>688</td><td><span class="ct">   */</span></td></tr>
+<tr name="689" id="689">
+<td>689</td><td>  <span class="kw">for</span> (<a id="689c8" class="tk">i</a> = 0; <a id="689c15" class="tk">i</a> &lt; 6; <a id="689c22" class="tk">i</a>++) <span class="br">{</span></td></tr>
+<tr name="690" id="690">
+<td>690</td><td>    <span class="kw">for</span> (<a id="690c10" class="tk">i_1</a> = 0; <a id="690c19" class="tk">i_1</a> &lt; 6; <a id="690c28" class="tk">i_1</a>++) <span class="br">{</span></td></tr>
+<tr name="691" id="691">
+<td>691</td><td>      <a id="691c7" class="tk">Kalman_DW</a>.<a id="691c17" class="tk">UnitDelay_DSTATE</a>[<a id="691c34" class="tk">i_1</a> + 6 * <a id="691c44" class="tk">i</a>] = <a id="691c49" class="tk">rtb_Pkm</a>[6 * <a id="691c61" class="tk">i</a> + <a id="691c65" class="tk">i_1</a>] + <a id="691c72" class="tk">a_0</a>[6 * <a id="691c80" class="tk">i</a></td></tr>
+<tr name="692" id="692">
+<td>692</td><td>        + <a id="692c11" class="tk">i_1</a>];</td></tr>
+<tr name="693" id="693">
+<td>693</td><td>    <span class="br">}</span></td></tr>
+<tr name="694" id="694">
+<td>694</td><td>  <span class="br">}</span></td></tr>
+<tr name="695" id="695">
+<td>695</td><td></td></tr>
+<tr name="696" id="696">
+<td>696</td><td>  <span class="ct">/* End of Update for UnitDelay: '&lt;Root&gt;/Unit Delay' */</span></td></tr>
+<tr name="697" id="697">
+<td>697</td><td></td></tr>
+<tr name="698" id="698">
+<td>698</td><td>  <span class="ct">/* Update for UnitDelay: '&lt;Root&gt;/Unit Delay2' */</span></td></tr>
+<tr name="699" id="699">
+<td>699</td><td>  <a id="699c3" class="tk">Kalman_DW</a>.<a id="699c13" class="tk">UnitDelay2_DSTATE</a>[0] = <a id="699c36" class="tk">rtb_qkp_idx_0</a>;</td></tr>
+<tr name="700" id="700">
+<td>700</td><td>  <a id="700c3" class="tk">Kalman_DW</a>.<a id="700c13" class="tk">UnitDelay2_DSTATE</a>[1] = <a id="700c36" class="tk">rtb_qkp_idx_1</a>;</td></tr>
+<tr name="701" id="701">
+<td>701</td><td>  <a id="701c3" class="tk">Kalman_DW</a>.<a id="701c13" class="tk">UnitDelay2_DSTATE</a>[2] = <a id="701c36" class="tk">rtb_qkp_idx_2</a>;</td></tr>
+<tr name="702" id="702">
+<td>702</td><td>  <a id="702c3" class="tk">Kalman_DW</a>.<a id="702c13" class="tk">UnitDelay2_DSTATE</a>[3] = <a id="702c36" class="tk">dq_idx_3</a>;</td></tr>
+<tr name="703" id="703">
+<td>703</td><td></td></tr>
+<tr name="704" id="704">
+<td>704</td><td>  <span class="ct">/* Update for UnitDelay: '&lt;Root&gt;/Unit Delay1' */</span></td></tr>
+<tr name="705" id="705">
+<td>705</td><td>  <a id="705c3" class="tk">Kalman_DW</a>.<a id="705c13" class="tk">UnitDelay1_DSTATE</a>[0] = <a id="705c36" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[0];</td></tr>
+<tr name="706" id="706">
+<td>706</td><td>  <a id="706c3" class="tk">Kalman_DW</a>.<a id="706c13" class="tk">UnitDelay1_DSTATE</a>[1] = <a id="706c36" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[1];</td></tr>
+<tr name="707" id="707">
+<td>707</td><td>  <a id="707c3" class="tk">Kalman_DW</a>.<a id="707c13" class="tk">UnitDelay1_DSTATE</a>[2] = <a id="707c36" class="tk">rtb_TmpSignalConversionAtSFun_l</a>[2];</td></tr>
+<tr name="708" id="708">
+<td>708</td><td></td></tr>
+<tr name="709" id="709">
+<td>709</td><td>  <span class="ct">/* Update for UnitDelay: '&lt;Root&gt;/Unit Delay3' */</span></td></tr>
+<tr name="710" id="710">
+<td>710</td><td>  <a id="710c3" class="tk">Kalman_DW</a>.<a id="710c13" class="tk">UnitDelay3_DSTATE</a>[0] = <a id="710c36" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[0];</td></tr>
+<tr name="711" id="711">
+<td>711</td><td>  <a id="711c3" class="tk">Kalman_DW</a>.<a id="711c13" class="tk">UnitDelay3_DSTATE</a>[1] = <a id="711c36" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[1];</td></tr>
+<tr name="712" id="712">
+<td>712</td><td>  <a id="712c3" class="tk">Kalman_DW</a>.<a id="712c13" class="tk">UnitDelay3_DSTATE</a>[2] = <a id="712c36" class="tk">rtb_TmpSignalConversionAtSFun_n</a>[2];</td></tr>
+<tr name="713" id="713">
+<td>713</td><td><span class="br">}</span></td></tr>
+<tr name="714" id="714">
+<td>714</td><td></td></tr>
+<tr name="715" id="715">
+<td>715</td><td><span class="ct">/* Model initialize function */</span></td></tr>
+<tr name="716" id="716">
+<td>716</td><td><span class="kw">void</span> <a id="716c6" class="tk">KalmanModelClass</a>::<a id="716c24" class="tk">initialize</a>()</td></tr>
+<tr name="717" id="717">
+<td>717</td><td><span class="br">{</span></td></tr>
+<tr name="718" id="718">
+<td>718</td><td>  <span class="ct">/* Registration code */</span></td></tr>
+<tr name="719" id="719">
+<td>719</td><td></td></tr>
+<tr name="720" id="720">
+<td>720</td><td>  <span class="ct">/* initialize error status */</span></td></tr>
+<tr name="721" id="721">
+<td>721</td><td>  <a id="721c3" class="tk">rtmSetErrorStatus</a>((&amp;<a id="721c23" class="tk">Kalman_M</a>), (<a id="721c35" class="tk">NULL</a>));</td></tr>
+<tr name="722" id="722">
+<td>722</td><td></td></tr>
+<tr name="723" id="723">
+<td>723</td><td>  <span class="ct">/* states (dwork) */</span></td></tr>
+<tr name="724" id="724">
+<td>724</td><td>  (<span class="kw">void</span>) <a id="724c10" class="tk">memset</a>((<span class="kw">void</span> *)&amp;<a id="724c26" class="tk">Kalman_DW</a>, 0,</td></tr>
+<tr name="725" id="725">
+<td>725</td><td>                <span class="kw">sizeof</span>(<a id="725c24" class="tk">DW_Kalman_T</a>));</td></tr>
+<tr name="726" id="726">
+<td>726</td><td></td></tr>
+<tr name="727" id="727">
+<td>727</td><td>  <span class="ct">/* external inputs */</span></td></tr>
+<tr name="728" id="728">
+<td>728</td><td>  (<span class="kw">void</span>) <a id="728c10" class="tk">memset</a>((<span class="kw">void</span> *)&amp;<a id="728c26" class="tk">Kalman_U</a>, 0,</td></tr>
+<tr name="729" id="729">
+<td>729</td><td>                <span class="kw">sizeof</span>(<a id="729c24" class="tk">ExtU_Kalman_T</a>));</td></tr>
+<tr name="730" id="730">
+<td>730</td><td></td></tr>
+<tr name="731" id="731">
+<td>731</td><td>  <span class="ct">/* external outputs */</span></td></tr>
+<tr name="732" id="732">
+<td>732</td><td>  (<span class="kw">void</span>) <a id="732c10" class="tk">memset</a>((<span class="kw">void</span> *)&amp;<a id="732c26" class="tk">Kalman_Y</a>, 0,</td></tr>
+<tr name="733" id="733">
+<td>733</td><td>                <span class="kw">sizeof</span>(<a id="733c24" class="tk">ExtY_Kalman_T</a>));</td></tr>
+<tr name="734" id="734">
+<td>734</td><td></td></tr>
+<tr name="735" id="735">
+<td>735</td><td>  <span class="ct">/* InitializeConditions for UnitDelay: '&lt;Root&gt;/Unit Delay' */</span></td></tr>
+<tr name="736" id="736">
+<td>736</td><td>  <a id="736c3" class="tk">memcpy</a>(&amp;<a id="736c11" class="tk">Kalman_DW</a>.<a id="736c21" class="tk">UnitDelay_DSTATE</a>[0], &amp;<a id="736c43" class="tk">Kalman_P</a>.<a id="736c52" class="tk">UnitDelay_InitialCondition</a>[0],</td></tr>
+<tr name="737" id="737">
+<td>737</td><td>         36U * <span class="kw">sizeof</span>(<a id="737c23" class="tk">real_T</a>));</td></tr>
+<tr name="738" id="738">
+<td>738</td><td></td></tr>
+<tr name="739" id="739">
+<td>739</td><td>  <span class="ct">/* InitializeConditions for UnitDelay: '&lt;Root&gt;/Unit Delay2' */</span></td></tr>
+<tr name="740" id="740">
+<td>740</td><td>  <a id="740c3" class="tk">Kalman_DW</a>.<a id="740c13" class="tk">UnitDelay2_DSTATE</a>[0] = <a id="740c36" class="tk">Kalman_P</a>.<a id="740c45" class="tk">UnitDelay2_InitialCondition</a>[0];</td></tr>
+<tr name="741" id="741">
+<td>741</td><td>  <a id="741c3" class="tk">Kalman_DW</a>.<a id="741c13" class="tk">UnitDelay2_DSTATE</a>[1] = <a id="741c36" class="tk">Kalman_P</a>.<a id="741c45" class="tk">UnitDelay2_InitialCondition</a>[1];</td></tr>
+<tr name="742" id="742">
+<td>742</td><td>  <a id="742c3" class="tk">Kalman_DW</a>.<a id="742c13" class="tk">UnitDelay2_DSTATE</a>[2] = <a id="742c36" class="tk">Kalman_P</a>.<a id="742c45" class="tk">UnitDelay2_InitialCondition</a>[2];</td></tr>
+<tr name="743" id="743">
+<td>743</td><td>  <a id="743c3" class="tk">Kalman_DW</a>.<a id="743c13" class="tk">UnitDelay2_DSTATE</a>[3] = <a id="743c36" class="tk">Kalman_P</a>.<a id="743c45" class="tk">UnitDelay2_InitialCondition</a>[3];</td></tr>
+<tr name="744" id="744">
+<td>744</td><td></td></tr>
+<tr name="745" id="745">
+<td>745</td><td>  <span class="ct">/* InitializeConditions for UnitDelay: '&lt;Root&gt;/Unit Delay1' */</span></td></tr>
+<tr name="746" id="746">
+<td>746</td><td>  <a id="746c3" class="tk">Kalman_DW</a>.<a id="746c13" class="tk">UnitDelay1_DSTATE</a>[0] = <a id="746c36" class="tk">Kalman_P</a>.<a id="746c45" class="tk">UnitDelay1_InitialCondition</a>[0];</td></tr>
+<tr name="747" id="747">
+<td>747</td><td>  <a id="747c3" class="tk">Kalman_DW</a>.<a id="747c13" class="tk">UnitDelay1_DSTATE</a>[1] = <a id="747c36" class="tk">Kalman_P</a>.<a id="747c45" class="tk">UnitDelay1_InitialCondition</a>[1];</td></tr>
+<tr name="748" id="748">
+<td>748</td><td>  <a id="748c3" class="tk">Kalman_DW</a>.<a id="748c13" class="tk">UnitDelay1_DSTATE</a>[2] = <a id="748c36" class="tk">Kalman_P</a>.<a id="748c45" class="tk">UnitDelay1_InitialCondition</a>[2];</td></tr>
+<tr name="749" id="749">
+<td>749</td><td></td></tr>
+<tr name="750" id="750">
+<td>750</td><td>  <span class="ct">/* InitializeConditions for UnitDelay: '&lt;Root&gt;/Unit Delay3' */</span></td></tr>
+<tr name="751" id="751">
+<td>751</td><td>  <a id="751c3" class="tk">Kalman_DW</a>.<a id="751c13" class="tk">UnitDelay3_DSTATE</a>[0] = <a id="751c36" class="tk">Kalman_P</a>.<a id="751c45" class="tk">UnitDelay3_InitialCondition</a>[0];</td></tr>
+<tr name="752" id="752">
+<td>752</td><td>  <a id="752c3" class="tk">Kalman_DW</a>.<a id="752c13" class="tk">UnitDelay3_DSTATE</a>[1] = <a id="752c36" class="tk">Kalman_P</a>.<a id="752c45" class="tk">UnitDelay3_InitialCondition</a>[1];</td></tr>
+<tr name="753" id="753">
+<td>753</td><td>  <a id="753c3" class="tk">Kalman_DW</a>.<a id="753c13" class="tk">UnitDelay3_DSTATE</a>[2] = <a id="753c36" class="tk">Kalman_P</a>.<a id="753c45" class="tk">UnitDelay3_InitialCondition</a>[2];</td></tr>
+<tr name="754" id="754">
+<td>754</td><td><span class="br">}</span></td></tr>
+<tr name="755" id="755">
+<td>755</td><td></td></tr>
+<tr name="756" id="756">
+<td>756</td><td><span class="ct">/* Model terminate function */</span></td></tr>
+<tr name="757" id="757">
+<td>757</td><td><span class="kw">void</span> <a id="757c6" class="tk">KalmanModelClass</a>::<a id="757c24" class="tk">terminate</a>()</td></tr>
+<tr name="758" id="758">
+<td>758</td><td><span class="br">{</span></td></tr>
+<tr name="759" id="759">
+<td>759</td><td>  <span class="ct">/* (no terminate code required) */</span></td></tr>
+<tr name="760" id="760">
+<td>760</td><td><span class="br">}</span></td></tr>
+<tr name="761" id="761">
+<td>761</td><td></td></tr>
+<tr name="762" id="762">
+<td>762</td><td><span class="ct">/* Constructor */</span></td></tr>
+<tr name="763" id="763">
+<td>763</td><td><a id="763c1" class="tk">KalmanModelClass</a>::<a id="763c19" class="tk">KalmanModelClass</a>()</td></tr>
+<tr name="764" id="764">
+<td>764</td><td><span class="br">{</span></td></tr>
+<tr name="765" id="765">
+<td>765</td><td>  <span class="kw">static</span> <span class="kw">const</span> <a id="765c16" class="tk">P_Kalman_T</a> <a id="765c27" class="tk">Kalman_P_temp</a> = <span class="br">{</span></td></tr>
+<tr name="766" id="766">
+<td>766</td><td>    <span class="ct">/*  Expression: (1e-6)*[1 0 0 0 0 0; 0 1 0 0 0 0; 0 0 1 0 0 0; 0 0 0 1 0 0; 0 0 0 0 1 0; 0 0 0 0 0 1]</span></td></tr>
+<tr name="767" id="767">
+<td>767</td><td><span class="ct">     * Referenced by: '&lt;Root&gt;/Unit Delay'</span></td></tr>
+<tr name="768" id="768">
+<td>768</td><td><span class="ct">     */</span></td></tr>
+<tr name="769" id="769">
+<td>769</td><td>    <span class="br">{</span> 1.0E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,</td></tr>
+<tr name="770" id="770">
+<td>770</td><td>      1.0E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,</td></tr>
+<tr name="771" id="771">
+<td>771</td><td>      1.0E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-6 <span class="br">}</span>,</td></tr>
+<tr name="772" id="772">
+<td>772</td><td></td></tr>
+<tr name="773" id="773">
+<td>773</td><td>    <span class="ct">/*  Expression: [0 0 0 1]'</span></td></tr>
+<tr name="774" id="774">
+<td>774</td><td><span class="ct">     * Referenced by: '&lt;Root&gt;/Unit Delay2'</span></td></tr>
+<tr name="775" id="775">
+<td>775</td><td><span class="ct">     */</span></td></tr>
+<tr name="776" id="776">
+<td>776</td><td>    <span class="br">{</span> 0.0, 0.0, 0.0, 1.0 <span class="br">}</span>,</td></tr>
+<tr name="777" id="777">
+<td>777</td><td></td></tr>
+<tr name="778" id="778">
+<td>778</td><td>    <span class="ct">/*  Expression: 0.00001*[1 1 1]'</span></td></tr>
+<tr name="779" id="779">
+<td>779</td><td><span class="ct">     * Referenced by: '&lt;Root&gt;/Unit Delay1'</span></td></tr>
+<tr name="780" id="780">
+<td>780</td><td><span class="ct">     */</span></td></tr>
+<tr name="781" id="781">
+<td>781</td><td>    <span class="br">{</span> 1.0E-5, 1.0E-5, 1.0E-5 <span class="br">}</span>,</td></tr>
+<tr name="782" id="782">
+<td>782</td><td></td></tr>
+<tr name="783" id="783">
+<td>783</td><td>    <span class="ct">/*  Expression: 0.00001*[1 1 1]'</span></td></tr>
+<tr name="784" id="784">
+<td>784</td><td><span class="ct">     * Referenced by: '&lt;Root&gt;/Unit Delay3'</span></td></tr>
+<tr name="785" id="785">
+<td>785</td><td><span class="ct">     */</span></td></tr>
+<tr name="786" id="786">
+<td>786</td><td>    <span class="br">{</span> 1.0E-5, 1.0E-5, 1.0E-5 <span class="br">}</span></td></tr>
+<tr name="787" id="787">
+<td>787</td><td>  <span class="br">}</span>;                                   <span class="ct">/* Modifiable parameters */</span></td></tr>
+<tr name="788" id="788">
+<td>788</td><td></td></tr>
+<tr name="789" id="789">
+<td>789</td><td>  <span class="ct">/* Initialize tunable parameters */</span></td></tr>
+<tr name="790" id="790">
+<td>790</td><td>  <a id="790c3" class="tk">Kalman_P</a> = <a id="790c14" class="tk">Kalman_P_temp</a>;</td></tr>
+<tr name="791" id="791">
+<td>791</td><td><span class="br">}</span></td></tr>
+<tr name="792" id="792">
+<td>792</td><td></td></tr>
+<tr name="793" id="793">
+<td>793</td><td><span class="ct">/* Destructor */</span></td></tr>
+<tr name="794" id="794">
+<td>794</td><td><a id="794c1" class="tk">KalmanModelClass</a>::~<a id="794c20" class="tk">KalmanModelClass</a>()</td></tr>
+<tr name="795" id="795">
+<td>795</td><td><span class="br">{</span></td></tr>
+<tr name="796" id="796">
+<td>796</td><td>  <span class="ct">/* Currently there is no destructor body generated.*/</span></td></tr>
+<tr name="797" id="797">
+<td>797</td><td><span class="br">}</span></td></tr>
+<tr name="798" id="798">
+<td>798</td><td></td></tr>
+<tr name="799" id="799">
+<td>799</td><td><span class="ct">/* Real-Time Model get method */</span></td></tr>
+<tr name="800" id="800">
+<td>800</td><td><a id="800c1" class="tk">RT_MODEL_Kalman_T</a> * <a id="800c21" class="tk">KalmanModelClass</a>::<a id="800c39" class="tk">getRTM</a>()</td></tr>
+<tr name="801" id="801">
+<td>801</td><td><span class="br">{</span></td></tr>
+<tr name="802" id="802">
+<td>802</td><td>  <span class="kw">return</span> (&amp;<a id="802c12" class="tk">Kalman_M</a>);</td></tr>
+<tr name="803" id="803">
+<td>803</td><td><span class="br">}</span></td></tr>
+<tr name="804" id="804">
+<td>804</td><td></td></tr>
+</table>
+</pre>
+</body>
+</html>

@@ -8,9 +8,10 @@ clc
 
 %% Import logged data
 
-load('logsync_0309_0.mat');
+load('logsync_calib.mat');
 
-Gyroscope = Gyroscope_f-ones(length(Gyroscope),3)*diag(mean(Gyroscope(1:100,:)));
+Gyroscope = Gyroscope-ones(length(Gyroscope),3)*diag(mean(Gyroscope(1:100,:)));
+Accelerometer = Accelerometer-ones(length(Accelerometer),3)*diag(mean(Accelerometer(1:100,:)));
 
 %% Tuning iterations
 for i = 0:100
