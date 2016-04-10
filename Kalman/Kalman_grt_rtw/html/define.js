@@ -2,9 +2,9 @@ function CodeDefine() {
 this.def = new Array();
 this.def["Kalman_mrdivide"] = {file: "Kalman_cpp.html",line:25,type:"fcn"};
 this.def["step"] = {file: "Kalman_cpp.html",line:81,type:"fcn"};
-this.def["initialize"] = {file: "Kalman_cpp.html",line:716,type:"fcn"};
-this.def["terminate"] = {file: "Kalman_cpp.html",line:757,type:"fcn"};
-this.def["getRTM"] = {file: "Kalman_cpp.html",line:800,type:"fcn"};
+this.def["initialize"] = {file: "Kalman_cpp.html",line:708,type:"fcn"};
+this.def["terminate"] = {file: "Kalman_cpp.html",line:749,type:"fcn"};
+this.def["getRTM"] = {file: "Kalman_cpp.html",line:792,type:"fcn"};
 this.def["DW_Kalman_T"] = {file: "Kalman_h.html",line:53,type:"type"};
 this.def["ExtU_Kalman_T"] = {file: "Kalman_h.html",line:66,type:"type"};
 this.def["ExtY_Kalman_T"] = {file: "Kalman_h.html",line:74,type:"type"};

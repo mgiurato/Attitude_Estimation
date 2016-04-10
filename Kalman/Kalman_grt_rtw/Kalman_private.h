@@ -7,9 +7,9 @@
  *
  * Code generation for model "Kalman".
  *
- * Model version              : 1.151
+ * Model version              : 1.152
  * Simulink Coder version : 8.8.1 (R2015aSP1) 04-Sep-2015
- * C++ source code generated on : Wed Apr 06 00:18:35 2016
+ * C++ source code generated on : Wed Apr 06 13:18:35 2016
  *
  * Target selection: grt.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping

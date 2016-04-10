@@ -7,9 +7,9 @@
  *
  * Code generation for model "Kalman".
  *
- * Model version              : 1.151
+ * Model version              : 1.152
  * Simulink Coder version : 8.8.1 (R2015aSP1) 04-Sep-2015
- * C++ source code generated on : Wed Apr 06 00:18:35 2016
+ * C++ source code generated on : Wed Apr 06 13:18:35 2016
  *
  * Target selection: grt.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -114,8 +114,8 @@ void KalmanModelClass::step()
   static const int8_T I6[36] = { 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0,
     0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1 };
 
-  real_T rtb_TmpSignalConversionAtSFun_l[3];
-  real_T rtb_TmpSignalConversionAtSFun_n[3];
+  real_T rtb_TmpSignalConversionAtSFun_d[3];
+  real_T rtb_TmpSignalConversionAtSFun_h[3];
   real_T rtb_qkm[4];
   real_T rtb_Pkm[36];
   real_T rtb_Pkm_0[18];
@@ -123,13 +123,13 @@ void KalmanModelClass::step()
   real_T tmp[16];
   real_T I_0[16];
   real_T a_0[36];
-  real_T rtb_TmpSignalConversionAtSFun_0[9];
+  real_T rtb_TmpSignalConversionAtSFun_o[9];
   real_T tmp_0[9];
   real_T I6_0[36];
   real_T Magnetometer_0[3];
   int32_T i_0;
   int32_T i_1;
-  real_T rtb_qkm_p;
+  real_T rtb_qkm_a;
   real_T dq_idx_3;
   real_T rtb_qkp_idx_0;
   real_T dq_idx_0;
@@ -161,19 +161,19 @@ void KalmanModelClass::step()
   I[5] = 1;
   I[10] = 1;
   I[15] = 1;
-  rtb_TmpSignalConversionAtSFun_0[0] = 0.0;
-  rtb_TmpSignalConversionAtSFun_0[3] = -Kalman_DW.UnitDelay1_DSTATE[2];
-  rtb_TmpSignalConversionAtSFun_0[6] = Kalman_DW.UnitDelay1_DSTATE[1];
-  rtb_TmpSignalConversionAtSFun_0[1] = Kalman_DW.UnitDelay1_DSTATE[2];
-  rtb_TmpSignalConversionAtSFun_0[4] = 0.0;
-  rtb_TmpSignalConversionAtSFun_0[7] = -Kalman_DW.UnitDelay1_DSTATE[0];
-  rtb_TmpSignalConversionAtSFun_0[2] = -Kalman_DW.UnitDelay1_DSTATE[1];
-  rtb_TmpSignalConversionAtSFun_0[5] = Kalman_DW.UnitDelay1_DSTATE[0];
-  rtb_TmpSignalConversionAtSFun_0[8] = 0.0;
+  rtb_TmpSignalConversionAtSFun_o[0] = 0.0;
+  rtb_TmpSignalConversionAtSFun_o[3] = -Kalman_DW.UnitDelay1_DSTATE[2];
+  rtb_TmpSignalConversionAtSFun_o[6] = Kalman_DW.UnitDelay1_DSTATE[1];
+  rtb_TmpSignalConversionAtSFun_o[1] = Kalman_DW.UnitDelay1_DSTATE[2];
+  rtb_TmpSignalConversionAtSFun_o[4] = 0.0;
+  rtb_TmpSignalConversionAtSFun_o[7] = -Kalman_DW.UnitDelay1_DSTATE[0];
+  rtb_TmpSignalConversionAtSFun_o[2] = -Kalman_DW.UnitDelay1_DSTATE[1];
+  rtb_TmpSignalConversionAtSFun_o[5] = Kalman_DW.UnitDelay1_DSTATE[0];
+  rtb_TmpSignalConversionAtSFun_o[8] = 0.0;
   for (i = 0; i < 3; i++) {
-    tmp[i << 2] = -rtb_TmpSignalConversionAtSFun_0[3 * i];
-    tmp[1 + (i << 2)] = -rtb_TmpSignalConversionAtSFun_0[3 * i + 1];
-    tmp[2 + (i << 2)] = -rtb_TmpSignalConversionAtSFun_0[3 * i + 2];
+    tmp[i << 2] = -rtb_TmpSignalConversionAtSFun_o[3 * i];
+    tmp[1 + (i << 2)] = -rtb_TmpSignalConversionAtSFun_o[3 * i + 1];
+    tmp[2 + (i << 2)] = -rtb_TmpSignalConversionAtSFun_o[3 * i + 2];
   }
 
   tmp[12] = Kalman_DW.UnitDelay1_DSTATE[0];
@@ -191,10 +191,10 @@ void KalmanModelClass::step()
   }
 
   for (i = 0; i < 4; i++) {
-    rtb_qkm_p = I_0[i + 12] * Kalman_DW.UnitDelay2_DSTATE[3] + (I_0[i + 8] *
+    rtb_qkm_a = I_0[i + 12] * Kalman_DW.UnitDelay2_DSTATE[3] + (I_0[i + 8] *
       Kalman_DW.UnitDelay2_DSTATE[2] + (I_0[i + 4] *
       Kalman_DW.UnitDelay2_DSTATE[1] + I_0[i] * Kalman_DW.UnitDelay2_DSTATE[0]));
-    rtb_qkm[i] = rtb_qkm_p;
+    rtb_qkm[i] = rtb_qkm_a;
   }
 
   /* '<S1>:1:20' */
@@ -203,18 +203,12 @@ void KalmanModelClass::step()
   rtb_qkm[0] /= rtb_qkp_idx_0;
   rtb_qkm[1] /= rtb_qkp_idx_0;
   rtb_qkm[2] /= rtb_qkp_idx_0;
-  rtb_qkm_p = rtb_qkm[3] / rtb_qkp_idx_0;
+  rtb_qkm_a = rtb_qkm[3] / rtb_qkp_idx_0;
 
   /* % Bias propagation */
   /* '<S1>:1:23' */
   /* % Covariance equation propagation */
-  /*  omekhatx = [     0      -omehat(3)  omehat(2) ; */
-  /*               omehat(3)     0       -omehat(1) ; */
-  /*              -omehat(2)  omehat(1)      0     ]; */
-  /*  nomehat = sqrt(omehat(1)^2+omehat(2)^2+omehat(3)^2); */
-  /*  Phi1 = I3 - omekhatx*sin(nomehat*dt)/nomehat + omekhatx*omekhatx*(1 - cos(nomehat*dt))/(nomehat^2); */
-  /*  Phi2 = omekhatx*(1 - cos(nomehat*dt))/(nomehat^2) - I3*dt - omekhatx*omekhatx*(nomehat*dt - sin(nomehat*dt))/(nomehat^3); */
-  /* '<S1>:1:40' */
+  /* '<S1>:1:34' */
   for (i = 0; i < 6; i++) {
     for (i_1 = 0; i_1 < 6; i_1++) {
       a_0[i + 6 * i_1] = 0.0;
@@ -274,42 +268,40 @@ void KalmanModelClass::step()
   /*  Usefull values */
   /* '<S2>:1:23' */
   /*  Normalise accelerometer measurement */
-  /*  if(norm(Accelerometer) == 0), return; end % handle NaN */
-  /* '<S2>:1:28' */
+  /* '<S2>:1:27' */
   rtb_qkp_idx_0 = sqrt((Kalman_U.ax * Kalman_U.ax + Kalman_U.ay * Kalman_U.ay) +
                        Kalman_U.az * Kalman_U.az);
 
   /*  normalise magnitude */
   /*  Normalise magnetometer measurement */
-  /*  if(norm(Magnetometer) == 0), return; end % handle NaN */
-  /* '<S2>:1:32' */
+  /* '<S2>:1:30' */
   dq_idx_2 = sqrt((Kalman_U.mx * Kalman_U.mx + Kalman_U.my * Kalman_U.my) +
                   Kalman_U.mz * Kalman_U.mz);
 
   /*  normalise magnitude */
   /* % Propagated value from previous step */
-  /* '<S2>:1:35' */
+  /* '<S2>:1:33' */
   /* % Accelerometer and Magnetometer correction */
   /*  Compute attitude matrix */
-  /* '<S2>:1:39' */
-  rtb_TmpSignalConversionAtSFun_n[0] = rtb_qkm[0];
-  rtb_TmpSignalConversionAtSFun_n[1] = rtb_qkm[1];
-  rtb_TmpSignalConversionAtSFun_n[2] = rtb_qkm[2];
+  /* '<S2>:1:37' */
+  rtb_TmpSignalConversionAtSFun_h[0] = rtb_qkm[0];
+  rtb_TmpSignalConversionAtSFun_h[1] = rtb_qkm[1];
+  rtb_TmpSignalConversionAtSFun_h[2] = rtb_qkm[2];
 
-  /* '<S2>:1:42' */
-  /* '<S2>:1:43' */
-  /* '<S2>:1:46' */
-  /* '<S2>:1:47' */
-  dq_idx_3 = rtb_qkm_p * rtb_qkm_p - ((rtb_qkm[0] * rtb_qkm[0] + rtb_qkm[1] *
+  /* '<S2>:1:40' */
+  /* '<S2>:1:41' */
+  /* '<S2>:1:44' */
+  /* '<S2>:1:45' */
+  dq_idx_3 = rtb_qkm_a * rtb_qkm_a - ((rtb_qkm[0] * rtb_qkm[0] + rtb_qkm[1] *
     rtb_qkm[1]) + rtb_qkm[2] * rtb_qkm[2]);
-  dq_idx_0 = 2.0 * rtb_qkm_p;
+  dq_idx_0 = 2.0 * rtb_qkm_a;
   for (i = 0; i < 3; i++) {
-    rtb_TmpSignalConversionAtSFun_0[i] = rtb_TmpSignalConversionAtSFun_n[i] *
-      rtb_TmpSignalConversionAtSFun_n[0];
-    rtb_TmpSignalConversionAtSFun_0[i + 3] = rtb_TmpSignalConversionAtSFun_n[i] *
-      rtb_TmpSignalConversionAtSFun_n[1];
-    rtb_TmpSignalConversionAtSFun_0[i + 6] = rtb_TmpSignalConversionAtSFun_n[i] *
-      rtb_TmpSignalConversionAtSFun_n[2];
+    rtb_TmpSignalConversionAtSFun_o[i] = rtb_TmpSignalConversionAtSFun_h[i] *
+      rtb_TmpSignalConversionAtSFun_h[0];
+    rtb_TmpSignalConversionAtSFun_o[i + 3] = rtb_TmpSignalConversionAtSFun_h[i] *
+      rtb_TmpSignalConversionAtSFun_h[1];
+    rtb_TmpSignalConversionAtSFun_o[i + 6] = rtb_TmpSignalConversionAtSFun_h[i] *
+      rtb_TmpSignalConversionAtSFun_h[2];
   }
 
   tmp_0[0] = 0.0;
@@ -323,26 +315,26 @@ void KalmanModelClass::step()
   tmp_0[8] = 0.0;
   for (i = 0; i < 3; i++) {
     Aqkm[3 * i] = ((real_T)b_b[3 * i] * dq_idx_3 +
-                   rtb_TmpSignalConversionAtSFun_0[3 * i] * 2.0) - tmp_0[3 * i] *
+                   rtb_TmpSignalConversionAtSFun_o[3 * i] * 2.0) - tmp_0[3 * i] *
       dq_idx_0;
     Aqkm[1 + 3 * i] = ((real_T)b_b[3 * i + 1] * dq_idx_3 +
-                       rtb_TmpSignalConversionAtSFun_0[3 * i + 1] * 2.0) -
+                       rtb_TmpSignalConversionAtSFun_o[3 * i + 1] * 2.0) -
       tmp_0[3 * i + 1] * dq_idx_0;
     Aqkm[2 + 3 * i] = ((real_T)b_b[3 * i + 2] * dq_idx_3 +
-                       rtb_TmpSignalConversionAtSFun_0[3 * i + 2] * 2.0) -
+                       rtb_TmpSignalConversionAtSFun_o[3 * i + 2] * 2.0) -
       tmp_0[3 * i + 2] * dq_idx_0;
   }
 
   /*  Reference direction of Earth's gravitational field */
-  /* '<S2>:1:52' */
+  /* '<S2>:1:50' */
   for (i = 0; i < 3; i++) {
     Aqmr[i] = Aqkm[i + 6];
   }
 
-  /* '<S2>:1:54' */
+  /* '<S2>:1:52' */
   /*  Sensitivity Matrix */
-  /* '<S2>:1:57' */
-  /* '<S2>:1:60' */
+  /* '<S2>:1:55' */
+  /* '<S2>:1:58' */
   Hk[0] = 0.0;
   Hk[3] = -Aqmr[2];
   Hk[6] = Aqmr[1];
@@ -359,7 +351,7 @@ void KalmanModelClass::step()
   }
 
   /*  Gain */
-  /* '<S2>:1:63' */
+  /* '<S2>:1:61' */
   for (i = 0; i < 6; i++) {
     for (i_1 = 0; i_1 < 3; i_1++) {
       rtb_Pkm_0[i + 6 * i_1] = 0.0;
@@ -385,14 +377,14 @@ void KalmanModelClass::step()
         dq_idx_3 += Kk[3 * i_0 + i] * Hk[3 * i_0 + i_1];
       }
 
-      rtb_TmpSignalConversionAtSFun_0[i + 3 * i_1] = b_R[3 * i_1 + i] + dq_idx_3;
+      rtb_TmpSignalConversionAtSFun_o[i + 3 * i_1] = b_R[3 * i_1 + i] + dq_idx_3;
     }
   }
 
-  Kalman_mrdivide(rtb_Pkm_0, rtb_TmpSignalConversionAtSFun_0, Kk);
+  Kalman_mrdivide(rtb_Pkm_0, rtb_TmpSignalConversionAtSFun_o, Kk);
 
   /*  Update Covariance */
-  /* '<S2>:1:66' */
+  /* '<S2>:1:64' */
   for (i = 0; i < 6; i++) {
     for (i_1 = 0; i_1 < 6; i_1++) {
       a_0[i + 6 * i_1] = (real_T)I6[6 * i_1 + i] - ((Hk[3 * i_1 + 1] * Kk[i + 6]
@@ -450,10 +442,10 @@ void KalmanModelClass::step()
   }
 
   /*  Update state */
-  /* '<S2>:1:69' */
+  /* '<S2>:1:67' */
   /* residual */
-  /* '<S2>:1:70' */
-  /* '<S2>:1:71' */
+  /* '<S2>:1:68' */
+  /* '<S2>:1:69' */
   dq_idx_0 = Kalman_U.ax / rtb_qkp_idx_0 - Aqmr[0];
   dq_idx_1 = Kalman_U.ay / rtb_qkp_idx_0 - Aqmr[1];
   dq_idx_3 = Kalman_U.az / rtb_qkp_idx_0 - Aqmr[2];
@@ -463,28 +455,28 @@ void KalmanModelClass::step()
   }
 
   /*  Reference direction of Earth's magnetic feild */
-  /* '<S2>:1:77' */
+  /* '<S2>:1:75' */
   for (i = 0; i < 3; i++) {
-    rtb_TmpSignalConversionAtSFun_l[i] = Aqkm[i + 6] * Kalman_U.mz + (Aqkm[i + 3]
+    rtb_TmpSignalConversionAtSFun_d[i] = Aqkm[i + 6] * Kalman_U.mz + (Aqkm[i + 3]
       * Kalman_U.my + Aqkm[i] * Kalman_U.mx);
   }
 
-  /* '<S2>:1:78' */
-  /* '<S2>:1:79' */
-  /* '<S2>:1:82' */
-  dq_idx_3 = sqrt(rtb_TmpSignalConversionAtSFun_l[0] *
-                  rtb_TmpSignalConversionAtSFun_l[0] +
-                  rtb_TmpSignalConversionAtSFun_l[1] *
-                  rtb_TmpSignalConversionAtSFun_l[1]);
+  /* '<S2>:1:76' */
+  /* '<S2>:1:77' */
+  /* '<S2>:1:80' */
+  dq_idx_3 = sqrt(rtb_TmpSignalConversionAtSFun_d[0] *
+                  rtb_TmpSignalConversionAtSFun_d[0] +
+                  rtb_TmpSignalConversionAtSFun_d[1] *
+                  rtb_TmpSignalConversionAtSFun_d[1]);
   for (i = 0; i < 3; i++) {
-    Aqmr[i] = Aqkm[i + 6] * rtb_TmpSignalConversionAtSFun_l[2] + Aqkm[i] *
+    Aqmr[i] = Aqkm[i + 6] * rtb_TmpSignalConversionAtSFun_d[2] + Aqkm[i] *
       dq_idx_3;
   }
 
-  /* '<S2>:1:84' */
+  /* '<S2>:1:82' */
   /*  Sensitivity Matrix */
-  /* '<S2>:1:87' */
-  /* '<S2>:1:90' */
+  /* '<S2>:1:85' */
+  /* '<S2>:1:88' */
   Hk[0] = 0.0;
   Hk[3] = -Aqmr[2];
   Hk[6] = Aqmr[1];
@@ -501,7 +493,7 @@ void KalmanModelClass::step()
   }
 
   /*  Gain */
-  /* '<S2>:1:93' */
+  /* '<S2>:1:91' */
   for (i = 0; i < 6; i++) {
     for (i_1 = 0; i_1 < 3; i_1++) {
       rtb_Pkm_0[i + 6 * i_1] = 0.0;
@@ -527,19 +519,19 @@ void KalmanModelClass::step()
         dq_idx_3 += Kk[3 * i_0 + i] * Hk[3 * i_0 + i_1];
       }
 
-      rtb_TmpSignalConversionAtSFun_0[i + 3 * i_1] = R[3 * i_1 + i] + dq_idx_3;
+      rtb_TmpSignalConversionAtSFun_o[i + 3 * i_1] = R[3 * i_1 + i] + dq_idx_3;
     }
   }
 
-  Kalman_mrdivide(rtb_Pkm_0, rtb_TmpSignalConversionAtSFun_0, Kk);
+  Kalman_mrdivide(rtb_Pkm_0, rtb_TmpSignalConversionAtSFun_o, Kk);
 
   /*  Update Covariance */
-  /* '<S2>:1:96' */
+  /* '<S2>:1:94' */
   /*  Update state */
-  /* '<S2>:1:99' */
+  /* '<S2>:1:97' */
   /* residual */
-  /* '<S2>:1:100' */
-  /* '<S2>:1:101' */
+  /* '<S2>:1:98' */
+  /* '<S2>:1:99' */
   for (i = 0; i < 3; i++) {
     dq_idx_3 = 0.0;
     for (i_1 = 0; i_1 < 6; i_1++) {
@@ -555,9 +547,9 @@ void KalmanModelClass::step()
   }
 
   /*  Update quaternion */
+  /* '<S2>:1:102' */
+  /* '<S2>:1:103' */
   /* '<S2>:1:104' */
-  /* '<S2>:1:105' */
-  /* '<S2>:1:106' */
   rtb_qkp_idx_0 = 1.0 / sqrt(((deltaXkp[0] * deltaXkp[0] + deltaXkp[1] *
     deltaXkp[1]) + deltaXkp[2] * deltaXkp[2]) + 4.0);
   dq_idx_0 = rtb_qkp_idx_0 * deltaXkp[0];
@@ -565,44 +557,44 @@ void KalmanModelClass::step()
   dq_idx_2 = rtb_qkp_idx_0 * deltaXkp[2];
   dq_idx_3 = rtb_qkp_idx_0 * 2.0;
 
-  /* '<S2>:1:107' */
-  rtb_qkp_idx_0 = (dq_idx_3 * rtb_qkm[0] + rtb_qkm_p * dq_idx_0) - (dq_idx_1 *
+  /* '<S2>:1:105' */
+  rtb_qkp_idx_0 = (dq_idx_3 * rtb_qkm[0] + rtb_qkm_a * dq_idx_0) - (dq_idx_1 *
     rtb_qkm[2] - dq_idx_2 * rtb_qkm[1]);
-  rtb_qkp_idx_1 = (dq_idx_3 * rtb_qkm[1] + rtb_qkm_p * dq_idx_1) - (dq_idx_2 *
+  rtb_qkp_idx_1 = (dq_idx_3 * rtb_qkm[1] + rtb_qkm_a * dq_idx_1) - (dq_idx_2 *
     rtb_qkm[0] - dq_idx_0 * rtb_qkm[2]);
-  rtb_qkp_idx_2 = (dq_idx_3 * rtb_qkm[2] + rtb_qkm_p * dq_idx_2) - (dq_idx_0 *
+  rtb_qkp_idx_2 = (dq_idx_3 * rtb_qkm[2] + rtb_qkm_a * dq_idx_2) - (dq_idx_0 *
     rtb_qkm[1] - dq_idx_1 * rtb_qkm[0]);
-  dq_idx_3 = dq_idx_3 * rtb_qkm_p - ((dq_idx_0 * rtb_qkm[0] + dq_idx_1 *
+  dq_idx_3 = dq_idx_3 * rtb_qkm_a - ((dq_idx_0 * rtb_qkm[0] + dq_idx_1 *
     rtb_qkm[1]) + dq_idx_2 * rtb_qkm[2]);
 
   /*  Update biases */
-  /* '<S2>:1:111' */
-  /* '<S2>:1:112' */
-  rtb_TmpSignalConversionAtSFun_n[0] = Kalman_DW.UnitDelay3_DSTATE[0] +
+  /* '<S2>:1:109' */
+  /* '<S2>:1:110' */
+  rtb_TmpSignalConversionAtSFun_h[0] = Kalman_DW.UnitDelay3_DSTATE[0] +
     deltaXkp[3];
-  rtb_TmpSignalConversionAtSFun_n[1] = Kalman_DW.UnitDelay3_DSTATE[1] +
+  rtb_TmpSignalConversionAtSFun_h[1] = Kalman_DW.UnitDelay3_DSTATE[1] +
     deltaXkp[4];
-  rtb_TmpSignalConversionAtSFun_n[2] = Kalman_DW.UnitDelay3_DSTATE[2] +
+  rtb_TmpSignalConversionAtSFun_h[2] = Kalman_DW.UnitDelay3_DSTATE[2] +
     deltaXkp[5];
 
   /* % Depolarize gyroscope measurement */
-  /* '<S2>:1:115' */
+  /* '<S2>:1:113' */
   /* % Convert Quaternion into RPY */
+  /* '<S2>:1:116' */
+  /* '<S2>:1:117' */
   /* '<S2>:1:118' */
   /* '<S2>:1:119' */
   /* '<S2>:1:120' */
-  /* '<S2>:1:121' */
   /* '<S2>:1:122' */
+  /* '<S2>:1:123' */
   /* '<S2>:1:124' */
-  /* '<S2>:1:125' */
   /* '<S2>:1:126' */
-  /* '<S2>:1:128' */
-  rtb_TmpSignalConversionAtSFun_l[0] = Kalman_U.gx -
-    rtb_TmpSignalConversionAtSFun_n[0];
-  rtb_TmpSignalConversionAtSFun_l[1] = Kalman_U.gy -
-    rtb_TmpSignalConversionAtSFun_n[1];
-  rtb_TmpSignalConversionAtSFun_l[2] = Kalman_U.gz -
-    rtb_TmpSignalConversionAtSFun_n[2];
+  rtb_TmpSignalConversionAtSFun_d[0] = Kalman_U.gx -
+    rtb_TmpSignalConversionAtSFun_h[0];
+  rtb_TmpSignalConversionAtSFun_d[1] = Kalman_U.gy -
+    rtb_TmpSignalConversionAtSFun_h[1];
+  rtb_TmpSignalConversionAtSFun_d[2] = Kalman_U.gz -
+    rtb_TmpSignalConversionAtSFun_h[2];
 
   /* Outport: '<Root>/Quaternion' */
   Kalman_Y.Quaternion[0] = rtb_qkp_idx_0;
@@ -611,9 +603,9 @@ void KalmanModelClass::step()
   Kalman_Y.Quaternion[3] = dq_idx_3;
 
   /* Outport: '<Root>/OmegaHat' */
-  Kalman_Y.OmegaHat[0] = rtb_TmpSignalConversionAtSFun_l[0];
-  Kalman_Y.OmegaHat[1] = rtb_TmpSignalConversionAtSFun_l[1];
-  Kalman_Y.OmegaHat[2] = rtb_TmpSignalConversionAtSFun_l[2];
+  Kalman_Y.OmegaHat[0] = rtb_TmpSignalConversionAtSFun_d[0];
+  Kalman_Y.OmegaHat[1] = rtb_TmpSignalConversionAtSFun_d[1];
+  Kalman_Y.OmegaHat[2] = rtb_TmpSignalConversionAtSFun_d[2];
 
   /* Outport: '<Root>/RPY' incorporates:
    *  MATLAB Function: '<Root>/Update'
@@ -628,9 +620,9 @@ void KalmanModelClass::step()
     - rtb_qkp_idx_1 * rtb_qkp_idx_1) - rtb_qkp_idx_2 * rtb_qkp_idx_2);
 
   /* Outport: '<Root>/beta ' */
-  Kalman_Y.beta[0] = rtb_TmpSignalConversionAtSFun_n[0];
-  Kalman_Y.beta[1] = rtb_TmpSignalConversionAtSFun_n[1];
-  Kalman_Y.beta[2] = rtb_TmpSignalConversionAtSFun_n[2];
+  Kalman_Y.beta[0] = rtb_TmpSignalConversionAtSFun_h[0];
+  Kalman_Y.beta[1] = rtb_TmpSignalConversionAtSFun_h[1];
+  Kalman_Y.beta[2] = rtb_TmpSignalConversionAtSFun_h[2];
 
   /* MATLAB Function: '<Root>/Update' */
   for (i = 0; i < 6; i++) {
@@ -702,14 +694,14 @@ void KalmanModelClass::step()
   Kalman_DW.UnitDelay2_DSTATE[3] = dq_idx_3;
 
   /* Update for UnitDelay: '<Root>/Unit Delay1' */
-  Kalman_DW.UnitDelay1_DSTATE[0] = rtb_TmpSignalConversionAtSFun_l[0];
-  Kalman_DW.UnitDelay1_DSTATE[1] = rtb_TmpSignalConversionAtSFun_l[1];
-  Kalman_DW.UnitDelay1_DSTATE[2] = rtb_TmpSignalConversionAtSFun_l[2];
+  Kalman_DW.UnitDelay1_DSTATE[0] = rtb_TmpSignalConversionAtSFun_d[0];
+  Kalman_DW.UnitDelay1_DSTATE[1] = rtb_TmpSignalConversionAtSFun_d[1];
+  Kalman_DW.UnitDelay1_DSTATE[2] = rtb_TmpSignalConversionAtSFun_d[2];
 
   /* Update for UnitDelay: '<Root>/Unit Delay3' */
-  Kalman_DW.UnitDelay3_DSTATE[0] = rtb_TmpSignalConversionAtSFun_n[0];
-  Kalman_DW.UnitDelay3_DSTATE[1] = rtb_TmpSignalConversionAtSFun_n[1];
-  Kalman_DW.UnitDelay3_DSTATE[2] = rtb_TmpSignalConversionAtSFun_n[2];
+  Kalman_DW.UnitDelay3_DSTATE[0] = rtb_TmpSignalConversionAtSFun_h[0];
+  Kalman_DW.UnitDelay3_DSTATE[1] = rtb_TmpSignalConversionAtSFun_h[1];
+  Kalman_DW.UnitDelay3_DSTATE[2] = rtb_TmpSignalConversionAtSFun_h[2];
 }
 
 /* Model initialize function */

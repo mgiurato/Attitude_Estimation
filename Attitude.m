@@ -8,21 +8,21 @@ clc
 
 %% Import logged data
 
-load('logsync_calib.mat');
+load('logsync_0309_1.mat');
 
-Gyroscope = Gyroscope-ones(length(Gyroscope),3)*diag(mean(Gyroscope(1:100,:)));
-Accelerometer = Accelerometer-ones(length(Accelerometer),3)*diag(mean(Accelerometer(1:100,:)));
+GyroBias = ones(1, 3)*diag(mean(Gyroscope(1:100,:)));
+AccBias = [1 1 0]*diag(mean(Accelerometer(1:100,:)));
 
 %% Tuning iterations
 for i = 0:100
     % Process sensor data through Madgwick algorithm
-    beta(i+1) = i/5000;
+    beta(i+1) = i/50000;
     zeta = 0;
     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', beta(i+1),  'Zeta', zeta);
     IMUquaternion = zeros(length(IMUtime), 4);
     for t = 1:length(IMUtime)
-%         AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-        AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+%         AHRS.UpdateIMU(Gyroscope(t,:)-GyroBias, Accelerometer(t,:)-AccBias);	% gyroscope units must be radians
+        AHRS.Update(Gyroscope(t,:)-GyroBias, Accelerometer(t,:)-AccBias, Magnetometer(t,:));	% gyroscope units must be radians
         IMUquaternion(t, :) = AHRS.Quaternion;
     % Let's find the ERROR
     error = OPTIquaternion - IMUquaternion;
@@ -30,24 +30,7 @@ for i = 0:100
     end
 end
 [M, I] = min(FiltRMS);
-bet = (I-1)/5000;
-
-%Uncomment only in case of AHRS algorithm
-% for i = 0:100
-%     % Process sensor data through Madgwick algorithm
-%     zeta(i+1) = i/50000;
-%     AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zeta(i+1));
-%     IMUquaternion = zeros(length(IMUtime), 4);
-%     for t = 1:length(IMUtime)
-%         AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
-%         IMUquaternion(t, :) = AHRS.Quaternion;
-%     % Let's find the ERROR
-%     error = OPTIquaternion - IMUquaternion;
-%     FiltRMSzeta(i+1) = mean(rms(error));
-%     end
-% end
-% [M, I] = min(FiltRMSzeta);
-% zet = (I-1)/50000;
+bet = (I-1)/50000;
 
 %% Plot Filter RMS
 
@@ -65,29 +48,14 @@ strmin = ['\beta = ',num2str(bet)];
 text(bet+0.001,y1(2)*19/20,strmin,'HorizontalAlignment','left');
 hold off;
 
-%Uncomment only in case of AHRS algorithm
-% figure('Name', 'Filter RMS');
-% hold on;
-% plot(zeta, FiltRMSzeta);
-% title('RMS of the error with reference to \zeta');
-% xlabel('\zeta');
-% ylabel('Quaternion Average RMS');
-% legend('RMS');
-% grid minor
-% y2=get(gca,'ylim');
-% plot([zet zet],y2, 'r--')
-% strmin = ['\zeta = ',num2str(zet)];
-% text(zet+0.0001,y2(2)*19/20,strmin,'HorizontalAlignment','left');
-% hold off;
-
 %% Plot Optimal tuning
 zet = 0;
 AHRS = MadgwickAHRS('SamplePeriod', IMUsample, 'Beta', bet,  'Zeta', zet);
 IMUquaternion = zeros(length(IMUtime), 4);
 GYRObias = zeros(length(IMUtime), 3);
 for t = 1:length(IMUtime)
-%     AHRS.UpdateIMU(Gyroscope(t,:), Accelerometer(t,:));	% gyroscope units must be radians
-    AHRS.Update(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+%     AHRS.UpdateIMU(Gyroscope(t,:)-GyroBias, Accelerometer(t,:)-AccBias);	% gyroscope units must be radians
+    AHRS.Update(Gyroscope(t,:)-GyroBias, Accelerometer(t,:)-AccBias, Magnetometer(t,:));	% gyroscope units must be radians
     IMUquaternion(t, :) = AHRS.Quaternion;
     GYRObias(t,:) = AHRS.GyrBias;
 end
