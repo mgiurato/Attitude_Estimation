@@ -1,0 +1,242 @@
+function C = DirCos(mode,q,sequence)
+
+% DIRCOS	Direction cosine matrix
+%	C = DirCos(MODE,Q,SEQUENCE) returns the 3x3 direction cosine 
+%	matrix for a given attitude vector q.  The integer flag MODE selects 
+%	which type of attitude parameters are begin used.  
+%
+%	The SEQUENCE string is only used if the Euler angles (MODE 2)
+%	are used.  If no SEQUENCE is given, then the function
+% 	defaults to the standard 3-2-1 yaw, pitch and roll set.  If the 
+%	sequence (3-1-3) would be used, then the command would be
+%		DirCos(2,Q,'313')
+%
+%	For the Euler parameters (MODE 1), the first element of the
+%	4x1 vector is the scalar Euler parameter component, while the
+%	remaining three form the Eulerparameter vector.
+%
+%	If mode 5, the prinicpal rotation vector, is used, then Q can be
+%	either a 4x1 or 3x1 vector.  The first element of the 4x1 vector 
+%	is the prinicpal rotation angle phi, while the remaining elements 
+%	form the unit prinicpal rotation vector e.  The 3x1 vector is the 
+%	principal rotation vector scaled by the rotation angle.
+%		Q = [phi,e]   	or 	Q = [phi*e]
+%
+%	MODE		ATTITUDE PARAMETERS
+%	   1			Euler parameter/quaternions
+%	   2			Euler angles (default is the (3-2-1) set)
+%	   3			modified Rodrigues parameters
+%	   4			classical Rodrigues parameters or Gibbs vector
+%	   5			prinicpal rotation vector
+%
+
+if size(mode)~= [1 1], error('MODE must be a scalar value.'); end
+if (mode<1)|(mode>5), error('MODE is out of range of 1:5.'); end
+if round(mode)~= mode, error('MODE must be an integer.'); end
+
+if (~isequal(size(q), [3 1]))&(~isequal(size(q), [4 1]))
+	error('Q has the wrong dimension.'); 
+end
+if (~isreal(q)),error('Q must have real components.');end
+
+if isequal(size(q),[3 1])
+	q1 = q(1);
+	q2 = q(2);
+	q3 = q(3);
+else
+	q0 = q(1);
+	q1 = q(2);
+	q2 = q(3);
+	q3 = q(4);
+end
+
+switch mode
+	case	1	% 	Euler Parameters
+		if (~isequal(size(q),[4 1])),error('Q must be a 4x1 vector for this MODE.');end
+		C(1,1) = q0*q0+q1*q1-q2*q2-q3*q3;
+		C(1,2) = 2*(q1*q2+q0*q3);
+		C(1,3) = 2*(q1*q3-q0*q2);
+		C(2,1) = 2*(q1*q2-q0*q3);
+		C(2,2) = q0*q0-q1*q1+q2*q2-q3*q3;
+		C(2,3) = 2*(q2*q3+q0*q1);
+		C(3,1) = 2*(q1*q3 + q0*q2);
+		C(3,2) = 2*(q2*q3-q0*q1);
+		C(3,3) = q0*q0-q1*q1-q2*q2+q3*q3;
+	case 	2	% 	Euler angles
+		st1 = sin(q1);
+		ct1 = cos(q1);
+		st2 = sin(q2);
+		ct2 = cos(q2);
+		st3 = sin(q3);
+		ct3 = cos(q3);
+		if (nargin==2) 
+			sequence = '321';
+		end
+		switch sequence
+			case	'321'
+				C(1,1) = ct2*ct1;
+				C(1,2) = ct2*st1;
+				C(1,3) = -st2;
+				C(2,1) = st3*st2*ct1-ct3*st1;
+				C(2,2) = st3*st2*st1+ct3*ct1;
+				C(2,3) = st3*ct2;
+				C(3,1) = ct3*st2*ct1+st3*st1;
+				C(3,2) = ct3*st2*st1-st3*ct1;
+				C(3,3) = ct3*ct2;
+			case '313'
+				C(1,1) = ct3*ct1-st3*ct2*st1;
+				C(1,2) = ct3*st1+st3*ct2*ct1;
+				C(1,3) = st3*st2;
+				C(2,1) = -st3*ct1-ct3*ct2*st1;
+				C(2,2) = -st3*st1+ct3*ct2*ct1;
+				C(2,3) = ct3*st2;
+				C(3,1) = st2*st1;
+				C(3,2) = -st2*ct1;
+				C(3,3) = ct2;
+			case '312'
+				C(1,1) = ct1*ct3-st1*st2*st3;
+				C(1,2) = ct3*st1+ct1*st2*st3;
+				C(1,3) = -ct2*st3;
+				C(2,1) = -ct2*st1;
+				C(2,2) = ct1*ct2;
+				C(2,3) = st2;
+				C(3,1) = ct3*st1*st2+ct1*st3;
+				C(3,2) = st1*st3-ct1*ct3*st2;
+				C(3,3) = ct2*ct3;
+			case '123'
+				C(1,1) = ct2*ct3;
+				C(1,2) = ct3*st1*st2+ct1*st3;
+				C(1,3) = st1*st3-ct1*ct3*st2;
+				C(2,1) = -ct2*st3;
+				C(2,2) = ct1*ct3-st1*st2*st3;
+				C(2,3) = ct3*st1+ct1*st2*st3;
+				C(3,1) = st2;
+				C(3,2) = -ct2*st1;
+				C(3,3) = ct1*ct2;
+			case '132'
+				C(1,1) = ct2*ct3;
+				C(1,2) = ct1*ct3*st2+st1*st3;
+				C(1,3) = ct3*st1*st2-ct1*st3;
+				C(2,1) = -st2;
+				C(2,2) = ct1*ct2;
+				C(2,3) = ct2*st1;
+				C(3,1) = ct2*st3;
+				C(3,2) = -ct3*st1+ct1*st2*st3;
+				C(3,3) = ct1*ct3+st1*st2*st3;
+			case '213'
+				C(1,1) = ct1*ct3+st1*st2*st3;
+				C(1,2) = ct2*st3;
+				C(1,3) = -ct3*st1+ct1*st2*st3;
+				C(2,1) = ct3*st1*st2-ct1*st3;
+				C(2,2) = ct2*ct3;
+				C(2,3) = ct1*ct3*st2 + st1*st3;
+				C(3,1) = ct2*st1;
+				C(3,2) = -st2;
+				C(3,3) = ct1*ct2;
+			case '231'
+				C(1,1) = ct1*ct2;
+				C(1,2) = st2;
+				C(1,3) = -ct2*st1;
+				C(2,1) = -ct1*ct3*st2+st1*st3;
+				C(2,2) = ct2*ct3;
+				C(2,3) = ct3*st1*st2+ct1*st3;
+				C(3,1)= ct3*st1+ct1*st2*st3;
+				C(3,2) = -ct2*st3;
+				C(3,3) = ct1*ct3-st1*st2*st3;
+			case '323'
+				C(1,1) = ct1*ct2*ct3-st1*st3;
+				C(1,2) = ct2*ct3*st1+ct1*st3;
+				C(1,3) = -ct3*st2;
+				C(2,1) = -ct3*st1-ct1*ct2*st3;
+				C(2,2) = ct1*ct3-ct2*st1*st3;
+				C(2,3) = st2*st3;
+				C(3,1) = ct1*st2;
+				C(3,2) = st1*st2;
+				C(3,3) = ct2;
+			case '121'
+				C(1,1) = ct2;
+				C(1,2) = st1*st2;
+				C(1,3) = -ct1*st2;
+				C(2,1) = st2*st3;
+				C(2,2) = ct1*ct3-ct2*st1*st3;
+				C(2,3) = ct3*st1+ct1*ct2*st3;
+				C(3,1) = ct3*st2;
+				C(3,2) = -ct2*ct3*st1-ct1*st3;
+				C(3,3) = ct1*ct2*ct3-st1*st3;
+			case '131'
+				C(1,1) = ct2;
+				C(1,2) = ct1*st2;
+				C(1,3) = st1*st2;
+				C(2,1) = -ct3*st2;
+				C(2,2) = ct1*ct2*ct3-st1*st3;
+				C(2,3) = ct2*ct3*st1+ct1*st3;
+				C(3,1) = st2*st3;
+				C(3,2) = -ct3*st1-ct1*ct2*st3;
+				C(3,3) = ct1*ct3-ct2*st1*st3;
+			case '232'
+				C(1,1) = ct1*ct2*ct3-st1*st3;
+				C(1,2) = ct3*st2;
+				C(1,3) = -ct2*ct3*st1-ct1*st3;
+				C(2,1) = -ct1*st2;
+				C(2,2) = ct2;
+				C(2,3) = st1*st2;
+				C(3,1) = ct3*st1+ct1*ct2*st3;
+				C(3,2) = st2*st3;
+				C(3,3) = ct1*ct3-ct2*st1*st3;
+			case '212'
+				C(1,1) = ct1*ct3-ct2*st1*st3;
+				C(1,2) = st2*st3;
+				C(1,3) = -ct3*st1-ct1*ct2*st3;
+				C(2,1) = st1*st2;
+				C(2,2) = ct2;
+				C(2,3) = ct1*st2;
+				C(3,1) = ct2*ct3*st1+ct1*st3;
+				C(3,2) = -ct3*st2;
+				C(3,3) = ct1*ct2*ct3-st1*st3;
+		end
+	case	3	%	MRP
+		d1 = q'*q;
+		S = 1-d1;
+		d = (1+d1)*(1+d1);
+		C(1,1) = 4*(2*q1*q1-d1)+S*S;
+		C(1,2) = 8*q1*q2+4*q3*S;
+		C(1,3) = 8*q1*q3-4*q2*S;
+		C(2,1) = 8*q2*q1-4*q3*S;
+		C(2,2) = 4*(2*q2*q2-d1)+S*S;
+		C(2,3) = 8*q2*q3+4*q1*S;
+		C(3,1) = 8*q3*q1+4*q2*S;
+		C(3,2) = 8*q3*q2-4*q1*S;
+		C(3,3) = 4*(2*q3*q3-d1)+S*S;
+		C = C/d;
+	case 4	%	Gibbs vector
+		d1 = q'*q;
+		C(1,1) = 1+2*q1*q1-d1;
+		C(1,2) = 2*(q1*q2+q3);
+		C(1,3) = 2*(q1*q3-q2);
+		C(2,1) = 2*(q2*q1-q3);
+		C(2,2) = 1+2*q2*q2-d1;
+		C(2,3) = 2*(q2*q3+q1);
+		C(3,1) = 2*(q3*q1+q2);
+		C(3,2) = 2*(q3*q2-q1);
+		C(3,3) = 1+2*q3*q3-d1;
+		C = C/(1+d1);
+	case 5	%	principal rotation vector
+		if length(q)==3
+			q0 = sqrt(q'*q);
+			q1 = q1/q0;
+			q2 = q2/q0;
+			q3 = q3/q0;
+		end 
+		cp= cos(q0);
+		sp= sin(q0);
+		d1 = 1-cp;
+		C(1,1) = q1*q1*d1+cp;
+		C(1,2) = q1*q2*d1+q3*sp;
+		C(1,3) = q1*q3*d1-q2*sp;
+		C(2,1) = q2*q1*d1-q3*sp;
+		C(2,2) = q2*q2*d1+cp;
+		C(2,3) = q2*q3*d1+q1*sp;
+		C(3,1) = q3*q1*d1+q2*sp;
+		C(3,2) = q3*q2*d1-q1*sp;
+		C(3,3) = q3*q3*d1+cp;
+end
