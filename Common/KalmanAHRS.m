@@ -9,7 +9,7 @@ classdef KalmanAHRS < handle
         sigma_A = 1;                % Sigma accelerometer
         sigma_M = 1;                % Sigma magnetometer
         sigma_U = 1;                % Sigma rate random walk
-        sigma_V = 1;                % Sigma angular random walk
+        sigma_V = 1;                % Sigma angle random walk
         Quaternion = [0 0 0 1]';    % Attitude initial condition (Quaternion)
         R_P_Y = [0 0 0]';           % Attitude initial condition (Euler)
         omehat = (1e-3)*eye(3,1);   % Angular rate initial condition

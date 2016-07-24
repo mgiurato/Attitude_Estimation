@@ -20,4 +20,4 @@ for t = 1:length(Accelerometer)
     errorMah(t,2) = Mahony.R_P_Y(2) - optiP(t);
     errorMah(t,3) = Mahony.R_P_Y(3) - optiY(t);
 end
-MahRMS = sum([w1*rms(errorMah(:,1)) w2*rms(errorMah(:,2)) w3*rms(errorMah(:,3))])/sum([w1 w2 w3]);
+MahRMS = (w1*rms(errorMah(:,1)) + w2*rms(errorMah(:,2)) + w3*rms(errorMah(:,3)))/(w1 + w2 + w3);

@@ -13,9 +13,9 @@ ts = 0.01;                                                                  %[s]
 logfile = 'Calibration';
 
 %Weight tuning
-w_roll = 0.3;
-w_pitch = 0.3;
-w_yaw = 0.3;
+w_roll = 1;
+w_pitch = 1;
+w_yaw = 0.5;
 
 %Usefull variables
 deg2rad = pi/180;
@@ -91,10 +91,10 @@ disp('Mahony Nonlinear Complementary Filter tuning');
 timerVal = tic;
 
 %Tuning guess
-Kacc = 4; 
+Kacc = 2; 
 Kmag = 0.1;
-Kp = 0.1;
-Ki = 0.01;
+Kp = 1;
+Ki = 0.1;
 x0 = [Kacc Kmag Kp Ki]';
 
 %Estimator tuning

@@ -71,10 +71,10 @@ classdef MahonyAHRS < handle
             v_acc_hat = Aqkm*r_acc;
             
             % Reference direction of Earth's magnetic feild
-            h = Aqkm'*Magnetometer;
+            h = Aqkm'*v_mag;
             norm_h = sqrt(h(1)^2 + h(2)^2);
             r_mag = [norm_h ;
-                       0    ;
+                       0    ;   
                       h(3) ];
             v_mag_hat = Aqkm*r_mag;
             
@@ -82,15 +82,15 @@ classdef MahonyAHRS < handle
             acc_corr = Kacc/2*(v_acc*v_acc_hat' - v_acc_hat*v_acc');
             mag_corr = Kmag/2*(v_mag*v_mag_hat' - v_mag_hat*v_mag');
             ome_mes_x = (acc_corr + mag_corr);
-            ome_mes = [ome_mes_x(3,2) ;
-                       ome_mes_x(1,3) ;
-                       ome_mes_x(2,1)];
+            ome_mes = - [ome_mes_x(3,2) ;
+                         ome_mes_x(1,3) ;
+                         ome_mes_x(2,1)];
             
             %% Bias estimation
-            betak = betakm + Ki*ome_mes*dt;
+            betak = betakm - Ki*ome_mes*dt;
             
             %% Gyroscope depolarization
-            omekhat = Gyroscope - betak - Kp*ome_mes;
+            omekhat = Gyroscope - betak + Kp*ome_mes;
             
             %% Quaternion integration
             ome = omekhat;
