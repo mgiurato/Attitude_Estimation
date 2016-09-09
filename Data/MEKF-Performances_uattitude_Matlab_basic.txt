@@ -1,0 +1,9 @@
+*MEKF Performances*
+Attitude error [arcsec]:
+- RMS: 1.1364
+- Standard eviation: 0.49711
+- Mean: -1.0219
+Angular speed error [rad/s]:
+- RMS: 0.00033859
+- Standard eviation: 0.00033859
+- Mean: -6.9116e-08
