@@ -76,22 +76,22 @@ kalman_euler = quatToEuler(kalman_quaternion);
 f1 = figure('name','Kalman','units','normalized','outerposition',[0 0 1 1]);
 subplot(311)
 hold on
-plot(time, kalman_euler(2,:))
 plot(time, attitude(:,1))
+plot(time, kalman_euler(2,:))
 ylabel('Roll [rad]')
 grid minor
 hold off
 subplot(312)
 hold on
-plot(time, kalman_euler(1,:))
 plot(time, attitude(:,2))
+plot(time, kalman_euler(1,:))
 ylabel('Pitch [rad]')
 grid minor
 hold off
 subplot(313)
 hold on
-plot(time, -kalman_euler(3,:))
 plot(time, attitude(:,3))
+plot(time, -kalman_euler(3,:))
 grid minor
 ylabel('Yaw [rad]')
 hold off
@@ -105,8 +105,8 @@ timerVal = tic;
 %Tuning
 Kacc = 2; 
 Kmag = 2;
-Kp = 20;
-Ki = 5;
+Kp = 5;
+Ki = 1;
 
 %Attitude Estimator
 mahony_quaternion = zeros(4,length(time));
@@ -124,22 +124,22 @@ mahony_euler = quatToEuler(mahony_quaternion);
 f2 = figure('name','Mahony','units','normalized','outerposition',[0 0 1 1]);
 subplot(311)
 hold on
-plot(time, mahony_euler(2,:))
 plot(time, attitude(:,1))
+plot(time, mahony_euler(2,:))
 ylabel('Roll [rad]')
 grid minor
 hold off
 subplot(312)
 hold on
-plot(time, mahony_euler(1,:))
 plot(time, attitude(:,2))
+plot(time, mahony_euler(1,:))
 ylabel('Pitch [rad]')
 grid minor
 hold off
 subplot(313)
 hold on
-plot(time, -mahony_euler(3,:))
 plot(time, attitude(:,3))
+plot(time, -mahony_euler(3,:))
 grid minor
 ylabel('Yaw [rad]')
 hold off
@@ -170,22 +170,22 @@ madgwick_euler = quatToEuler(madgwick_quaternion);
 f3 = figure('name','Madgwick','units','normalized','outerposition',[0 0 1 1]);
 subplot(311)
 hold on
-plot(time, madgwick_euler(2,:))
 plot(time, attitude(:,1))
+plot(time, madgwick_euler(2,:))
 ylabel('Roll [rad]')
 grid minor
 hold off
 subplot(312)
 hold on
-plot(time, madgwick_euler(1,:))
 plot(time, attitude(:,2))
+plot(time, madgwick_euler(1,:))
 ylabel('Pitch [rad]')
 grid minor
 hold off
 subplot(313)
 hold on
-plot(time, -madgwick_euler(3,:))
 plot(time, attitude(:,3))
+plot(time, -madgwick_euler(3,:))
 ylabel('Yaw [rad]')
 grid minor
 hold off

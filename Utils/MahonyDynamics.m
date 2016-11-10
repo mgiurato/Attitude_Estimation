@@ -12,10 +12,10 @@ clc
 ts = 0.01;                
 
 %Tuning
-Kacc = 2; 
-Kmag = 2;
-Kp = 10;
-Ki = 1;
+Kacc = 2.3000; 
+Kmag = 0.8500;
+Kp = 0.8500;
+Ki = 0.2000;
 
 %% Dynamical model
 %Roll and Pitch angles use the accelerometer measurement

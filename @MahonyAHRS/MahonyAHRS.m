@@ -9,6 +9,7 @@ classdef MahonyAHRS < handle
     properties (Access = public)
         SamplePeriod = 1/100;       % [s] Sample time
         Quaternion = [0 0 0 1]';    % output quaternion describing the attitude of the body referred to the inertial system
+        Euler = [0 0 0]';           % estimated euler angles
         bias = [0 0 0]';            % estimated bias
         Kp = 1;                     % algorithm proportional gain
         Ki = 0;                     % algorithm integral gain
@@ -36,12 +37,12 @@ classdef MahonyAHRS < handle
             qkm = obj.Quaternion;
             
             % Normalise accelerometer measurement
-            if(norm(Accelerometer) == 0), return; end       % handle NaN
+            if(norm(Accelerometer) == 0), return; end   % handle NaN
             v_acc = Accelerometer / norm(Accelerometer);    % normalise magnitude
             
             % Normalise magnetometer measurement
-            if(norm(Magnetometer) == 0), return; end        % handle NaN
-            v_mag = Magnetometer / norm(Magnetometer);      % normalise magnitude
+            if(norm(Magnetometer) == 0), return; end    % handle NaN
+            v_mag = Magnetometer / norm(Magnetometer);   % normalise magnitude
             
             % Compute attitude matrix
             Akm = quatToAtt(qkm);
@@ -71,11 +72,11 @@ classdef MahonyAHRS < handle
             
             % Bias estimation and gyroscope depolarization
             if(obj.Ki > 0)
-                obj.bias = obj.bias + ome_mes * obj.SamplePeriod;
+                obj.bias = obj.bias + obj.Ki * ome_mes * obj.SamplePeriod;
             else
                 obj.bias = [0 0 0]';
             end
-            omek_hat = Gyroscope + obj.Kp * ome_mes + obj.Ki * obj.bias;
+            omek_hat = Gyroscope + obj.bias + obj.Kp * ome_mes;
             
             % Quaternion integration
             qDot = quatDerivative( omek_hat, qkm );
@@ -111,11 +112,11 @@ classdef MahonyAHRS < handle
             
             % Bias estimation and gyroscope depolarization
             if(obj.Ki > 0)
-                obj.bias = obj.bias + ome_mes * obj.SamplePeriod;
+                obj.bias = obj.bias + obj.Ki * ome_mes * obj.SamplePeriod;
             else
                 obj.bias = [0 0 0]';
             end
-            omek_hat = Gyroscope + obj.Kp * ome_mes + obj.Ki * obj.bias;
+            omek_hat = Gyroscope + obj.bias + obj.Kp * ome_mes;
             
             % Quaternion integration
             qDot = quatDerivative( omek_hat, qkm );
